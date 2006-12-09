@@ -45,6 +45,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		
+        #t3lib_div::debug( $GLOBALS['TSFE']->page['title']);
+        
 		$pageid = $GLOBALS['TSFE']->id; //page-id
 		$pidList = $this->pi_getPidList($this->cObj->data['pages'],$this->conf["recursive"]);
 		$this->pi_USER_INT_obj = 1;  // Disable caching
@@ -146,13 +148,17 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 				if(count($err)>0) {
 					//error
 					$fval=$this->cObj->wrap(implode('<br>',$err),$errorLayout);
-					$formfields['name']=$insertArr['name'];
-					$formfields['email']=$insertArr['email'];
-					$formfields['comment']=$insertArr['comment'];
+					#$formfields['name']=$insertArr['name'];
+					#$formfields['email']=$insertArr['email'];
+					#$formfields['comment']=$insertArr['comment'];
 				} else {
 					//$GLOBALS['TYPO3_DB']->debugOutput = true;
 					
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
+                    if($this->conf['emailNewMessage'] && $this->conf['emailAddress'] && $this->conf['emailFrom']) {
+                         $msg='User '.$insertArr['name'].' added a comment at '.date('Y-m-d H:i',$insertArr['crdate']).' on Page "'.$GLOBALS['TSFE']->page['title'].'" : '.$insertArr['comment'];
+                         $this->cObj->sendNotifyEmail($msg, $this->conf['emailAddress'], '', $this->conf['emailFrom'], $email_fromName='PageComments', $this->conf['emailFrom']);
+                    }
 					header('Location: '.t3lib_div::getIndpEnv('REQUEST_URI').(strpos(t3lib_div::getIndpEnv('REQUEST_URI'),'?')?'&':'?').$this->prefixId.'[showComments]=1&'.$this->prefixId.'[success]=1');
 					exit;
 				}
@@ -222,15 +228,16 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 $markerArray['###NAME###']=$this->prefixId.'[name]';
                 $markerArray['###EMAIL###']=$this->prefixId.'[email]';     
                 $markerArray['###SUBMIT###']=$this->prefixId.'[submit]';  
+                $markerArray['###COMMENT###']=$this->prefixId.'[comment]';  
                 
-                $markerArray['###V_NAME###']=$feuser?$GLOBALS['TSFE']->fe_user->user['username']:$this->pi_getLL('name_value');
-                $markerArray['###V_EMAIL###']=$feuser?$GLOBALS['TSFE']->fe_user->user['email']:$this->pi_getLL('email_value');
-                $markerArray['###V_COMMENT###']=$this->pi_getLL('comment_value'); 
+                $markerArray['###V_NAME###']=$feuser?$GLOBALS['TSFE']->fe_user->user['username']:$insertArr['name']?$insertArr['name']:$this->pi_getLL('name_value');
+                $markerArray['###V_EMAIL###']=$feuser?$GLOBALS['TSFE']->fe_user->user['email']:$insertArr['email']?$insertArr['email']:$this->pi_getLL('email_value');
+                $markerArray['###V_COMMENT###']=$insertArr['comment']?$insertArr['comment']:$this->pi_getLL('comment_value'); 
                 $markerArray['###V_SUBMIT###']=$this->pi_getLL('submit'); 
                  
                 $markerArray['###L_NAME###']=$this->pi_getLL('name');    
                 $markerArray['###L_EMAIL###']=$this->pi_getLL('mail');    
-                $markerArray['###L_COMMENT###']=$this->pi_getLL('comment');    
+                $markerArray['###L_COMMENT###']=$insertArr['comment']?$insertArr['comment']:$this->pi_getLL('comment');    
                 $markerArray['###L_CAPTCHA###']=$this->pi_getLL('captcha');    
                    
                    
