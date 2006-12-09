@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<type>database</type>
+		<description>Language labels for database tables/fields belonging to extension 'sk_pagecomments'</description>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="tx_skpagecomments_comments">Comments</label>
+			<label index="tx_skpagecomments_comments.name">Name</label>
+			<label index="tx_skpagecomments_comments.email">Email</label>
+			<label index="tx_skpagecomments_comments.comment">Comment</label>
+			<label index="tx_skpagecomments_comments.pageid">PageID</label>
+			<label index="tx_skpagecomments_comments.allowed">allowed</label>
+			<label index="tx_skpagecomments_comments.pivar">piVar</label>
+			<label index="tt_content.list_type_pi1">Page Comments</label>
+		</languageKey>
+	</data>
+</T3locallang>

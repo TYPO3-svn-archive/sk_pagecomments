@@ -1,0 +1,35 @@
+plugin.tx_skpagecomments_pi1 {
+
+	// Default CSS styling
+	_CSS_DEFAULT_STYLE (
+		.sk-pagecomments-error {color:red;font-weight:bold;}
+		.sk-pagecomments-success {color:blue;font-weight:bold;}
+		.sk-pagecomments-counter {color:#600;text-align:right;text-decoration:underline;margin-bottom:12px;}
+		.sk-pagecomments-headline {border-bottom:1px solid #000;font-weight:bold;}
+		.sk-pagecomments-comment{padding-left:28px;}
+	)
+	
+	//Layout
+	formLayout = <div style="clear:both;padding:3px;"><div style="float:right;">###FIELD###</div>###LABEL###</div>
+	formWrap = <div style="width:350px;">|</div>
+	commentLayout = <div class="sk-pagecomments-headline">###NAME### (###EMAIL###) ###PHRASE### ###DATE###</div><div class="sk-pagecomments-comment">###COMMENT###</div>
+	errorLayout = <div class="sk-pagecomments-error">|</div>
+	successLayout = <div class="sk-pagecomments-success">|</div>
+	
+
+	//additional
+	showComments = 1
+	showForm = 1
+	showCount = 1
+	sortOrder = DESC
+	maxRecords = 
+	commentOnlyRegistered = 
+	showRegisteredFields = 
+	
+	minCharsName = 3
+	minCharsComment = 8
+	
+	// possible values for startCode: LINK,LIST
+	startCode = LINK 
+	
+}

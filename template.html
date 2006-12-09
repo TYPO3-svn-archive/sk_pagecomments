@@ -1,0 +1,57 @@
+<!--###COMMENTS### start -->
+<div class="sk-pagecomments-headline">
+###NAME### (###EMAIL###) ###DATEPHRASE###
+</div>
+<div class="sk-pagecomments-comment">###COMMENT###</div>
+<!--###COMMENTS### end -->
+
+<!--###FORM### start -->
+<form action="###ACTION###" method="post">
+<div style="display:none;">###HIDDENFIELDS###</div>
+<fieldset>
+<legend>###LEGEND###</legend>
+
+<!--###NAME### start -->
+<p>
+    <label for="name">###L_NAME###</label>
+    <input type="text" id="name" name="###NAME###" size="25" value="###V_NAME###" />
+</p>
+<!--###NAME### end -->
+
+<!--###EMAIL### start -->
+<p>
+    <label for="email">###L_EMAIL###</label>
+    <input type="text" id="email" name="###EMAIL###" size="25" value="###V_EMAIL###" />
+</p>
+<!--###EMAIL### end -->
+
+<p>
+  <label for="comment">###L_COMMENT###</label>
+  <textarea id="comment" name="###COMMENT###" cols="20" rows="5" wrap="virtual">###V_COMMENT###</textarea>
+</p>
+
+<!--###CAPTCHA### start -->
+<p>
+  <label for="captcha">###L_CAPTCHA###</label>
+  ###CAPTCHA###
+</p>
+<!--###CAPTCHA### end -->
+
+<!--###CAPTCHA_INSERT### this subpart is removed if CAPTCHA is not enabled! -->
+<p>
+<label for="freecap">###SR_FREECAP_NOTICE###</label>
+###SR_FREECAP_CANT_READ###
+<br />
+<input type="text" size="15" id="freecap" name="tx_skpagecomments_pi1[captcha_response]" title="###SR_FREECAP_NOTICE###" value="">
+###SR_FREECAP_IMAGE###
+</p>
+<!--###CAPTCHA_INSERT###-->
+
+
+<input type="submit" name="###SUBMIT###" value="###V_SUBMIT###" />
+</fieldset>
+</form>
+
+<!--###FORM### end -->
+
+
