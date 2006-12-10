@@ -61,6 +61,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$subpart['form']=$this->cObj->getSubpart($template,'###FORM###');  
         $subpart['error']=$this->cObj->getSubpart($template,'###ERROR###');  
         $subpart['success']=$this->cObj->getSubpart($template,'###SUCCESS###');  
+        $subpart['mail']=$this->cObj->getSubpart($template,'###MAILING###');  
         
         
 		if ($GLOBALS['TSFE']->config['config']['sys_language_uid'] != '') {
@@ -134,11 +135,9 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 					//error
 					$errormsg=$this->cObj->substituteMarkerArrayCached($subpart['error'],array('###ERRORMSG###'=>implode('<br />',$err)),array(),array()); 
 				} else {
-					//$GLOBALS['TYPO3_DB']->debugOutput = true;
-					
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
                     if($this->conf['emailNewMessage']==1 && $this->conf['emailAddress'] && $this->conf['emailFrom']) {
-                         $msg='Neuer Kommentar:User '.$insertArr['name'].' added a comment at '.date('Y-m-d H:i',$insertArr['crdate']).' on Page "'.$GLOBALS['TSFE']->page['title'].'" : '.$insertArr['comment'];
+                         $msg=$this->cObj->substituteMarkerArrayCached($subpart['mail'],array('###USER###'=>$insertArr['name'],'###DATE###'=>date('Y-m-d H:i',$insertArr['crdate']),'###COMMENT###'=>$insertArr['comment'],'###PAGELINK###'=>'http://'.t3lib_div::getIndpEnv('HTTP_HOST').'/'.$this->pi_getPageLink($pageid),'###PAGETITLE###'=>$GLOBALS['TSFE']->page['title']),array(),array());  
                          $this->cObj->sendNotifyEmail($msg, $this->conf['emailAddress'], '', $this->conf['emailFrom'], $email_fromName='PageComments', $this->conf['emailFrom']);
                     }
 					header('Location: '.t3lib_div::getIndpEnv('REQUEST_URI').(strpos(t3lib_div::getIndpEnv('REQUEST_URI'),'?')?'&':'?').$this->prefixId.'[showComments]=1&'.$this->prefixId.'[success]=1');

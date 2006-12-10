@@ -2,41 +2,62 @@ plugin.tx_skpagecomments_pi1 {
 
 	// Default CSS styling
 	_CSS_DEFAULT_STYLE (
-		.sk-pagecomments-error {color:red;font-weight:bold;}
+		.sk-pagecomments-error {color:red;font-weight:bold;background:#FFE8CF;border:1px solid #000;margin:8px 12px;padding:4px;}
 		.sk-pagecomments-success {color:blue;font-weight:bold;}
 		.sk-pagecomments-counter {color:#600;text-align:right;text-decoration:underline;margin-bottom:12px;}
-		.sk-pagecomments-headline {border-bottom:1px solid #000;font-weight:bold;}
-		.sk-pagecomments-comment{padding-left:28px;}
+		.sk-pagecomments-headline {border-bottom:1px solid #000;font-weight:bold;background:#d1d1d1;padding-left:6px;}
+		.sk-pagecomments-comment{background:#f1f1f1;padding:4px 28px;}
+		.tx-skpagecomments-pi1 form {margin:16px 0;width:480px;}
+		.tx-skpagecomments-pi1 form fieldset {border:1px solid #eee;}
+		.tx-skpagecomments-pi1 form legend {background:#f1f1f1;border:1px solid #000;padding:4px;}
+		.tx-skpagecomments-pi1 form label {width:120px;float:left;margin-left:8px;}
+		.tx-skpagecomments-pi1 form p {margin:6px 0;}
+		.tx-skpagecomments-pi1 form p img {vertical-align:bottom;margin-left:8px;}
+		.tx-skpagecomments-pi1 div#skpagecomments-smileys {float:right;margin-right:12px;}
+		.tx-skpagecomments-pi1 form input#name,
+		.tx-skpagecomments-pi1 form input#email {width:320px;background:#FFE1BF;}
+		.tx-skpagecomments-pi1 form textarea {width:320px;height:160px;background:#FFE1BF;}
+		.tx-skpagecomments-pi1 form input#name:focus,
+		.tx-skpagecomments-pi1 form input#email:focus,
+		.tx-skpagecomments-pi1 form textarea:focus {background:#FFC480;} 
+		.tx-skpagecomments-pi1 form input#skcommentssubmit {background:#FFA540;color:#804400;float:right;margin:8px 20px;}
 	)
 	
-	//Layout
-	formLayout = <div style="clear:both;padding:3px;"><div style="float:right;">###FIELD###</div>###LABEL###</div>
-	formWrap = <div style="width:350px;">|</div>
-	commentLayout = <div class="sk-pagecomments-headline">###NAME### (###EMAIL###) ###PHRASE### ###DATE###</div><div class="sk-pagecomments-comment">###COMMENT###</div>
-	errorLayout = <div class="sk-pagecomments-error">|</div>
-	successLayout = <div class="sk-pagecomments-success">|</div>
+	templateFile=EXT:sk_pagecomments/res/template.html
 	
-    templateFile=EXT:sk_pagecomments/template.html
-
+	commentName {
+		#stdWrap for Name in Comments	
+	}
+	
+	commentEmail {
+		#stdWrap for Email in Comments
+		wrap = [|]
+		if.equals = DontShow
+	}
+	
+	
 	//additional
 	showComments = 1
+	showCommentsLink = 1
 	showForm = 1
+	showFormLink = 1
+	showEmail = 0
 	showCount = 1
 	sortOrder = DESC
 	maxRecords = 
 	commentOnlyRegistered = 
-	showRegisteredFields = 
-	emailNewMessage = 0
-    emailAddress = admin@yourdomain
-    emailFrom = pagecomments@yourdomain
+	showRegisteredFields = 0
+	useCaptcha = 1
+	useFreecap = 1
+	
+	emailNewMessage = 1
+    emailAddress = xxx@xxx.com
+	emailFrom = pagecomments@xxx.com 
     
-    useCaptcha = 1
-	useFreecap = 0
-    
+    hideNewMsg = 0
 	minCharsName = 3
 	minCharsComment = 8
 	
-	// possible values for startCode: LINK,LIST
-	startCode = LINK 
+	
 	
 }
