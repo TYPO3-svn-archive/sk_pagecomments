@@ -45,6 +45,8 @@
             <label index="wrote">schrieb am %s</label>
             <label index="showComment">zeige Kommentare</label>
             <label index="new_comment">einen Kommentar schreiben</label>
+            <label index="captcha">Bitte folgende Zeichen eingeben </label>
+            <label index="captcha_error">Die eingetragenen Zeichen sind nicht korrekt!</label>  
         </languageKey>
         <languageKey index="no" type="array">
         </languageKey>

@@ -16,6 +16,7 @@ plugin.tx_skpagecomments_pi1 {
 	errorLayout = <div class="sk-pagecomments-error">|</div>
 	successLayout = <div class="sk-pagecomments-success">|</div>
 	
+    templateFile=EXT:sk_pagecomments/template.html
 
 	//additional
 	showComments = 1
@@ -25,7 +26,13 @@ plugin.tx_skpagecomments_pi1 {
 	maxRecords = 
 	commentOnlyRegistered = 
 	showRegisteredFields = 
-	
+	emailNewMessage = 0
+    emailAddress = admin@yourdomain
+    emailFrom = pagecomments@yourdomain
+    
+    useCaptcha = 1
+	useFreecap = 0
+    
 	minCharsName = 3
 	minCharsComment = 8
 	

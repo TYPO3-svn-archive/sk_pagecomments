@@ -103,8 +103,20 @@ class tx_skpagecomments_module1 extends t3lib_SCbase {
 
 		if (($this->id && $access) || ($BE_USER->user["admin"] && !$this->id))	{
 
+            //process hide / unhid / delete
+            $gp=t3lib_div::_GP('pagecomments');
+            if(intval($gp['hide'])>0) {
+                $res=$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_skpagecomments_comments','uid='.intval($gp['hide']),array('hidden'=>1)); 
+            }
+            if(intval($gp['unhide'])>0) {
+                $res=$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_skpagecomments_comments','uid='.intval($gp['unhide']),array('hidden'=>0)); 
+            }
+            if(intval($gp['delete'])>0) {
+                $res=$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_skpagecomments_comments','uid='.intval($gp['delete']),array('deleted'=>1)); 
+            }
+            
 				// Draw the header.
-			$this->doc = t3lib_div::makeInstance("mediumDoc");
+			$this->doc = t3lib_div::makeInstance("bigDoc");
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->form='<form action="" method="POST">';
 
@@ -236,25 +248,38 @@ class tx_skpagecomments_module1 extends t3lib_SCbase {
 		$query = $GLOBALS['TYPO3_DB']->SELECTquery(
 		    '*',
 		    'tx_skpagecomments_comments',
-		    'hidden=0 and deleted=0 '.($pid>0 ? "and pid=$pid" : ''),
+		    'deleted=0 '.($pid>0 ? "and pid=$pid" : ''),
 		    '',
 		    $sqlOrder,
 		    $sqlLimit
 		    );
 		$res = $GLOBALS['TYPO3_DB']->sql_query($query);
 		if ($res) {
-			$content.='<table cellpadding="1" cellspacing="1" class="bgColor4">';
-			$content.='<tr class="tableheader bgColor5"><td>Page</td><td>Date</td><td>Name</td><td>Message</td><td>edit</td></tr>';
+			$content.='<table cellpadding="1" cellspacing="1" class="bgColor4" width="100%">';
+			$content.='<tr class="tableheader bgColor5"><td>Page</td><td>Date</td><td>Name</td><td>Message</td><td>edit</td><td>hide</td><td>delete</td></tr>';
 			$i=0;
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 				$content.='<tr class="'.($i++ % 2==0 ? 'bgColor3' : 'bgColor4').'">';
 				$page=t3lib_BEfunc::getRecord('pages',$row['pid']);
-				$content.='<td valign="top"><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('pages').'" title="'.$page['title'].'" width="18" height="16" align="top" alt="" />'.$row['pid'].'</td>';
-				$content.='<td valign="top">'.t3lib_BEfunc::dateTimeAge($row['crdate'],1).'</td>';
-				$content.='<td valign="top">'.$row['name'].'</td>';
+                if($row['hidden']==1) {
+                    $pagepic=$BACK_PATH.t3lib_iconWorks::getIcon('pages__h');
+                    $hide='<a href="index.php?pagecomments[unhide]='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/button_unhide.gif','width="11" height="12"').' vspace="2" align="top" title="unhide" alt="" /></a>';
+                } else {
+                    $pagepic=$BACK_PATH.t3lib_iconWorks::getIcon('pages');
+                    $hide='<a href="index.php?pagecomments[hide]='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/button_hide.gif','width="11" height="12"').' vspace="2" align="top" title="hide" alt="" /></a>';
+                }
+                $del='<a href="index.php?pagecomments[delete]='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/delete_record.gif','width="11" height="12"').' vspace="2" align="top" title="delete" alt="" /></a>';  
+                    
+				$content.='<td valign="top"><a href="#" onclick="previewWin=window.open(\''.$BACK_PATH.'../index.php?id='.$row['pid'].'\',\'newTYPO3frontendWindow\');previewWin.focus();"><img src="'.$pagepic.'" title="'.$page['title'].'" width="18" height="16" align="top" alt="" /></a>&nbsp;'.$row['pid'].'</td>';
+				$content.='<td valign="top" style="color:blue;">'.t3lib_BEfunc::dateTimeAge($row['crdate'],1).'</td>';
+				$content.='<td valign="top" style="color:green;">'.$row['name'].'</td>';
 				$content.='<td valign="top">'.substr($row['comment'],0,60).'...'.'</td>';
 				$content.='<td valign="top">'.$this->getItemFromRecord('tx_skpagecomments_comments',$row).'</td>';
-				$content.='</tr>';
+				$content.='<td valign="top">'.$hide.'</td>';
+				$content.='<td valign="top">'.$del.'</td>';
+				
+				
+                $content.='</tr>';
 			}
 			$content.='</table>';
 		}
@@ -268,8 +293,8 @@ class tx_skpagecomments_module1 extends t3lib_SCbase {
 		$iconAltText = t3lib_BEfunc::getRecordIconAltText($row,$table);
 		$elementTitle=t3lib_BEfunc::getRecordPath($row['uid'],'1=1',0);
 		$elementTitle=t3lib_div::fixed_lgd_cs($elementTitle,-($BE_USER->uc['titleLen']));
-		$elementIcon=t3lib_iconworks::getIconImage($table,$row,$BACK_PATH,'class="c-recicon" title="'.$iconAltText.'"');
-		
+		#$elementIcon=t3lib_iconworks::getIconImage($table,$row,$BACK_PATH,'class="c-recicon" title="'.$iconAltText.'"');
+		$elementIcon='<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/edit2.gif','width="11" height="12"').' vspace="2" align="top" title="edit" alt="" />';
 		$params='&edit['.$table.']['.$row['uid'].']=edit';
 		$editOnClick=t3lib_BEfunc::editOnClick($params,$BACK_PATH);
 		

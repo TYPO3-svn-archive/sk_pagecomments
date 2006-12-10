@@ -1,39 +1,48 @@
+<h1>Commentlisting</h1>
+
 <!--###COMMENTS### start -->
 <div class="sk-pagecomments-headline">
-###NAME### (###EMAIL###) ###DATEPHRASE###
+###NAME### ###EMAIL### ###DATEPHRASE###
 </div>
 <div class="sk-pagecomments-comment">###COMMENT###</div>
 <!--###COMMENTS### end -->
 
+
+<h1>Comment Form</h1>
+
 <!--###FORM### start -->
-<form action="###ACTION###" method="post">
+<form action="###ACTION###" id="skpagecommentform" method="post">
 <div style="display:none;">###HIDDENFIELDS###</div>
 <fieldset>
 <legend>###LEGEND###</legend>
 
-<!--###NAME### start -->
+###ERRORMSG###
+
+<!--###FORM_NAME### start -->
 <p>
     <label for="name">###L_NAME###</label>
-    <input type="text" id="name" name="###NAME###" size="25" value="###V_NAME###" />
+    <input type="text" id="name" name="###NAME###" size="25" value="###V_NAME###" ###ATT_NAME### />
 </p>
-<!--###NAME### end -->
+<!--###FORM_NAME### end -->
 
-<!--###EMAIL### start -->
+<!--###FORM_EMAIL### start -->
 <p>
     <label for="email">###L_EMAIL###</label>
-    <input type="text" id="email" name="###EMAIL###" size="25" value="###V_EMAIL###" />
+    <input type="text" id="email" name="###EMAIL###" size="25" value="###V_EMAIL###" ###ATT_EMAIL### />
 </p>
-<!--###EMAIL### end -->
+<!--###FORM_EMAIL### end -->
 
 <p>
   <label for="comment">###L_COMMENT###</label>
+  <div>###SMILEYS###<br />
   <textarea id="comment" name="###COMMENT###" cols="20" rows="5" wrap="virtual">###V_COMMENT###</textarea>
+  </div>
 </p>
 
 <!--###CAPTCHA### start -->
 <p>
   <label for="captcha">###L_CAPTCHA###</label>
-  ###CAPTCHA###
+  ###CAPTCHAINPUT### ###CAPTCHAPICTURE###
 </p>
 <!--###CAPTCHA### end -->
 
@@ -47,11 +56,25 @@
 </p>
 <!--###CAPTCHA_INSERT###-->
 
+<p>
+    <label for="skcommentssubmit">&nbsp;</label>
+    <input type="submit" id="skcommentssubmit" name="###SUBMIT###" value="###V_SUBMIT###" />
+</p>
 
-<input type="submit" name="###SUBMIT###" value="###V_SUBMIT###" />
 </fieldset>
 </form>
 
 <!--###FORM### end -->
+
+<h1>Messages</h1>
+
+
+<!--###ERROR### end -->
+<div class="sk-pagecomments-error">###ERRORMSG###</div>
+<!--###ERROR### end -->
+
+<!--###SUCCESS### end -->
+<div class="sk-pagecomments-success">###SUCCESSMSG###</div>
+<!--###SUCCESS### end -->
 
 
