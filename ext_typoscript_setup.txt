@@ -35,8 +35,6 @@ plugin.tx_skpagecomments_pi1 {
 		if.equals = DontShow
 	}
 	
-	
-	//additional
 	showComments = 1
 	showCommentsLink = 1
 	showForm = 1

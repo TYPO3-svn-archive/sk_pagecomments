@@ -86,8 +86,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$reccount=$row[0];
 		
 		if ($this->piVars['success']==1) $errormsg=$this->cObj->wrap($this->pi_getLL('entry_success'),$successLayout);
-		
-		if($conf['showCommentsLink ']=='1' && $this->piVars['showComments']!=1) {
+        
+		if(intval($this->conf['showCommentsLink'])==1 && intval($this->conf['showComments'])==0 && intval($this->piVars['showComments'])!=1) {
 			$content.=$this->pi_linkTP_keepPIvars($this->pi_getLL('showComment').'&nbsp;&nbsp;('.$reccount.')',array('showComments'=>1),0,1);
 		} else {
 			
@@ -180,7 +180,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			#t3lib_div::debug($this->conf); 
 			if($this->conf['showForm']==1 && $this->piVars['success']!=1 && (($this->conf['commentOnlyRegistered']==0) || ($this->conf['commentOnlyRegistered']==1 && $feuser===true))) {
 				if($this->conf['showFormLink']==1 && $this->piVars['showForm']!=1) {
-                    $content.=$this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showForm'=>1),0,1); 
+                    $content.=$this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1); 
                     
                 } else {
                 
