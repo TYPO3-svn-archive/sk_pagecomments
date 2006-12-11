@@ -36,7 +36,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	var $extKey = 'sk_pagecomments';	// The extension key.
 	var $pi_checkCHash = false;
 	var $prefixCSS='sk-pagecomments-';
-	
+	var $lookForValue;
 	/**
 	 * Extension for adding Pagecomments to Pages
 	 */
@@ -72,7 +72,26 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 
 			
 		//Conf
-		
+        
+        $thisURLParams=parse_url(t3lib_div::getIndpEnv('REQUEST_URI'));
+        $thisURLParamsArray=$this->cleanUrlPars(explode('&',$thisURLParams['query']));
+        
+		$addWhere='';
+        if($this->conf['bindToGETvar']) {
+            $var=$this->conf['bindToGETvar'];
+            if(strpos($var,'[')) {
+                $p1=substr($var,0,strpos($var,'['));
+                $p2=substr($var,strlen($p1)+1);
+                $p2=substr($p2,0,strlen($p2)-1);
+                $getvar=t3lib_div::GPvar($p1);
+                $lookForValue=$getvar[$p2];
+                $addWhere=" AND piVar='".$this->conf['bindToGETvar'].'='.$lookForValue."'";
+            } else {
+                $getvar=t3lib_div::GPvar($var);
+            }
+            #t3lib_div::debug($lookForValue,'NEWS-ID');
+            
+        }
         
         if (t3lib_extMgm::isLoaded('sr_freecap') && !$this->conf['useCaptcha'] && $this->conf['useFreecap']) {
             require_once(t3lib_extMgm::extPath('sr_freecap').'pi2/class.tx_srfreecap_pi2.php');
@@ -81,7 +100,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         }
         
 		//Get Rec-count
-		$result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*)','tx_skpagecomments_comments','pageid="'.$pageid.'"AND pid IN('.$pidList.') AND hidden="0" AND deleted="0"');
+        
+		$result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*)','tx_skpagecomments_comments','pageid="'.$pageid.'" AND pid IN('.$pidList.') AND hidden="0" AND deleted="0"'.$addWhere);
 		$row=$GLOBALS['TYPO3_DB']->sql_fetch_row($result);
 		$reccount=$row[0];
 		
@@ -104,7 +124,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 				$insertArr['pageid']=$pageid;
 				$insertArr['pid']=$pidList;
 				if(intval($this->conf['hideNewMsg'])>0) $insertArr['hidden']=1;            
-				
+				if($this->conf['bindToGETvar']) $insertArr['piVar']=$this->conf['bindToGETvar'].'='.$lookForValue;
+                  
 				//Validate
 				if ( (!(eregi('^[a-z0-9_\.-]+@[a-z0-9_-]+\.[a-z0-9_\.-]+$',$insertArr['email']))) && (strlen($insertArr['email'])>0) || $insertArr['email']=="" || $insertArr['email']==$this->pi_getLL('email_value')) {
 					$err[]=$this->pi_getLL('email_error');
@@ -150,9 +171,10 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			//Kommentare anzeigen
                
             
-            $order='tstamp '.$conf['sortOrder'];
-			$limit=$conf['maxRecords']>0 ? $conf['maxRecords'] : '';
-			$result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_skpagecomments_comments','pageid="'.$pageid.'"AND pid IN('.$pidList.') AND hidden="0" AND deleted="0"',$order,$limit);
+            $order='tstamp '.($this->piVars['showForm']==1 ? $this->conf['sortOrderOnForm']:$this->conf['sortOrder']);
+			$limit=$this->conf['maxRecords']>0 ? $this->conf['maxRecords'] : '';
+			$result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_skpagecomments_comments','pageid="'.$pageid.'" AND pid IN('.$pidList.') AND hidden="0" AND deleted="0"'.$addWhere,$order,$limit);
+            
 			if($reccount>0) {
 				if($this->conf['showCount']==1) $content .= '<div class="'.$this->prefixCSS.'counter">'.$reccount.' '.(($reccount==1) ? $this->pi_getLL('comment') : $this->pi_getLL('comments')).'</div>';
 				$content.='<a name="comments"></a>';
@@ -180,8 +202,12 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			#t3lib_div::debug($this->conf); 
 			if($this->conf['showForm']==1 && $this->piVars['success']!=1 && (($this->conf['commentOnlyRegistered']==0) || ($this->conf['commentOnlyRegistered']==1 && $feuser===true))) {
 				if($this->conf['showFormLink']==1 && $this->piVars['showForm']!=1) {
-                    $content.=$this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1); 
-                    
+                    #generate link for form
+                    #t3lib_div::debug($thisURLParamsArray);
+                    #$content.=$this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1); 
+                    $this->pi_linkToPage($this->pi_getLL('new_comment'),$pageid,'',array_merge(array($this->prefixId.'[showComments]'=>1,$this->prefixId.'[showForm]'=>1),$thisURLParamsArray));
+                    #t3lib_div::debug($this->cObj->lastTypoLinkUrl); 
+                    $content.=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$this->cObj->lastTypoLinkUrl.'#9999'));
                 } else {
                 
                 
@@ -240,7 +266,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                          }
                     }
                    
-                    $content.=$this->cObj->substituteMarkerArrayCached($subpart['form'],$markerArray,$subpartArray,array()).'<a name="endofcommentform"></a>'; 
+                    $content.=$this->cObj->substituteMarkerArrayCached($subpart['form'],$markerArray,$subpartArray,array()).'<a name="9999">&nbsp;</a>'; 
                 }
 			}
 		}
@@ -298,7 +324,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	    $comment = ereg_replace(":evil:", '<img src="'.$res.'icon_evil.gif" alt="Evil" class="smilie" border="0" />', $comment);
 	    $comment = ereg_replace(":frown:", '<img src="'.$res.'icon_frown.gif" alt="Frown" class="smilie" border="0" />', $comment);
 	    $comment = ereg_replace(":mad:", '<img src="'.$res.'icon_mad.gif" alt="Mad" class="smilie" border="0" />', $comment);
-	    $comment = ereg_replace(":mrgreen:", '<img src="'.$res.'icon_mrgreen.gif" alt="Mr. Green" class="smilie" border="0"', $comment);
+	    $comment = ereg_replace(":mrgreen:", '<img src="'.$res.'icon_mrgreen.gif" alt="Mr. Green" class="smilie" border="0" />', $comment);
 	    $comment = ereg_replace(":neutral:", '<img src="'.$res.'icon_neutral.gif" alt="Neutral" class="smilie" border="0" />', $comment);
 	    $comment = ereg_replace(":razz:", '<img src="'.$res.'icon_razz.gif" alt="Razz" class="smilie" border="0" />', $comment);
 	    $comment = ereg_replace(":redface:", '<img src="'.$res.'icon_redface.gif" alt="Redface" class="smilie" border="0" />', $comment);
@@ -315,6 +341,18 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         
         
         return nl2br($comment);
+    }
+    
+    function cleanUrlPars($arr) {
+        $u=array();
+        foreach($arr as $var=>$val) {
+            # stristr($val,'cHash')===false &&
+            if(stristr($val,$this->prefixId)===false && substr($val,0,3)!='id=') {
+                $tmp=explode('=',$val);
+                $u[$tmp[0]]=$tmp[1];
+            }
+        }
+        return $u;
     }
 }
 

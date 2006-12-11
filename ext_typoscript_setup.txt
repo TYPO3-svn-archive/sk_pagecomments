@@ -41,7 +41,9 @@ plugin.tx_skpagecomments_pi1 {
 	showFormLink = 1
 	showEmail = 0
 	showCount = 1
+    
 	sortOrder = DESC
+    sortOrderOnForm = ASC
 	maxRecords = 
 	commentOnlyRegistered = 
 	showRegisteredFields = 0
