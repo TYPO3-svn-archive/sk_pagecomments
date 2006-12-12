@@ -203,19 +203,16 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			if($this->conf['showForm']==1 && $this->piVars['success']!=1 && (($this->conf['commentOnlyRegistered']==0) || ($this->conf['commentOnlyRegistered']==1 && $feuser===true))) {
 				if($this->conf['showFormLink']==1 && $this->piVars['showForm']!=1) {
                     #generate link for form
-					#t3lib_div::debug($thisURLParamsArray);
-					#$content.=$this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1);
 					if($this->conf['bindToGETvar']) {
-						#$m=array_merge($thisURLParamsArray,array($this->prefixId=>array('showComments'=>1,'showForm'=>1)));
-						$m=array_merge($thisURLParamsArray,array($this->prefixId.'[showComments]'=>1,$this->prefixId.'[showForm]'=>1));
-						$this->pi_linkToPage($this->pi_getLL('new_comment'),$pageid,'',$m);
+						$this->pi_linkToPage($this->pi_getLL('new_comment'),$pageid,'',array_merge($thisURLParamsArray,array($this->prefixId.'[showComments]'=>1,$this->prefixId.'[showForm]'=>1)));
 						$l=$this->cObj->lastTypoLinkUrl;
+						if(intval($lookForValue)>0) $content.=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$l.'#9999'));
 					} else {
 						$this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1);
 						$l=$this->cObj->lastTypoLinkUrl;
 						if(substr($l,0,4)!='http') $l=t3lib_div::getIndpEnv('HTTP_HOST').'/'.$l;
-					}
-                    $content.=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$l.'#9999'));
+						$content.=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$l.'#9999'));
+                    }
                 } else {
 
 
