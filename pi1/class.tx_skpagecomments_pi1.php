@@ -44,38 +44,41 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$this->conf=$conf;
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
-
+		
         #t3lib_div::debug( $GLOBALS['TSFE']->page['title']);
-
+        
 		$pageid = $GLOBALS['TSFE']->id; //page-id
 		$pidList = $this->pi_getPidList($this->cObj->data['pages'],$this->conf["recursive"]);
 		$this->pi_USER_INT_obj = 1;  // Disable caching
-
+		
 		if (isset($conf["pidList"])) $pidList = $conf["pidList"];
-
+		
 		$err=array();
 		$content=$errormsg='';
-
+		
         $template=$this->cObj->fileResource($this->conf['templateFile']);
-        $subpart['comments']=$this->cObj->getSubpart($template,'###COMMENTS###');
-		$subpart['form']=$this->cObj->getSubpart($template,'###FORM###');
-        $subpart['error']=$this->cObj->getSubpart($template,'###ERROR###');
-        $subpart['success']=$this->cObj->getSubpart($template,'###SUCCESS###');
-        $subpart['mail']=$this->cObj->getSubpart($template,'###MAILING###');
-
-
+        $subpart['commentlink']=$this->cObj->getSubpart($template,'###COMMENTLINK###');
+        $subpart['formlink']=$this->cObj->getSubpart($template,'###FORMLINK###');   
+        $subpart['comments']=$this->cObj->getSubpart($template,'###COMMENTS###');  
+		$subpart['form']=$this->cObj->getSubpart($template,'###FORM###');  
+        $subpart['error']=$this->cObj->getSubpart($template,'###ERROR###');  
+        $subpart['success']=$this->cObj->getSubpart($template,'###SUCCESS###');  
+        $subpart['mail']=$this->cObj->getSubpart($template,'###MAILING###');  
+        
+        
 		if ($GLOBALS['TSFE']->config['config']['sys_language_uid'] != '') {
-			$this->sys_language_uid = $GLOBALS['TSFE']->config['config']['sys_language_uid'];	//Get site-language
+			$this->sys_language_uid = $GLOBALS['TSFE']->config['config']['sys_language_uid'];	//Get site-language  
 		} else {
 			$this->sys_language_uid = 0;
 		}
 
-
+			
 		//Conf
-
-        $thisURLParams=parse_url(t3lib_div::getIndpEnv('REQUEST_URI'));
-        $thisURLParamsArray=$this->cleanUrlPars(explode('&',$thisURLParams['query']));
-
+        #t3lib_div::debug($_GET);
+        #$thisURLParams=parse_url(t3lib_div::getIndpEnv('REQUEST_URI'));
+        #$thisURLParamsArray=$this->cleanUrlPars(explode('&',$thisURLParams['query']));
+        $thisURLParamsArray=$this->cleanUrlPars($_GET);   
+         
 		$addWhere='';
         if($this->conf['bindToGETvar']) {
             $var=$this->conf['bindToGETvar'];
@@ -90,42 +93,45 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 $getvar=t3lib_div::GPvar($var);
             }
             #t3lib_div::debug($lookForValue,'NEWS-ID');
-
+            
         }
-
+        
         if (t3lib_extMgm::isLoaded('sr_freecap') && !$this->conf['useCaptcha'] && $this->conf['useFreecap']) {
             require_once(t3lib_extMgm::extPath('sr_freecap').'pi2/class.tx_srfreecap_pi2.php');
             $this->freeCap = t3lib_div::makeInstance('tx_srfreecap_pi2');
-
+                    
         }
-
+        
 		//Get Rec-count
-
+        
 		$result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*)','tx_skpagecomments_comments','pageid="'.$pageid.'" AND pid IN('.$pidList.') AND hidden="0" AND deleted="0"'.$addWhere);
 		$row=$GLOBALS['TYPO3_DB']->sql_fetch_row($result);
 		$reccount=$row[0];
-
+		
 		if ($this->piVars['success']==1) $errormsg=$this->cObj->wrap($this->pi_getLL('entry_success'),$successLayout);
-
+        
 		if(intval($this->conf['showCommentsLink'])==1 && intval($this->conf['showComments'])==0 && intval($this->piVars['showComments'])!=1) {
-			$content.=$this->pi_linkTP_keepPIvars($this->pi_getLL('showComment').'&nbsp;&nbsp;('.$reccount.')',array('showComments'=>1),0,1);
+			$wrappedSubpartArray['COMMENTLINKWRAP']=explode('|', $this->pi_linkTP_keepPIvars('|',array('showComments'=>1),0,1));
+            $markerArray['###RECORDCOUNT###']=$reccount;
+            $markerArray['###LINKTEXT###']=$this->pi_getLL('showComment');
+            $content.=$this->cObj->substituteMarkerArrayCached($subpart['commentlink'] ,$markerArray,$subpartArray,$wrappedSubpartArray); 
 		} else {
-
-
+			
+			
 			//Wurde gepostet ?
 			if (isset($this->piVars['submit'])) {
-
+                
                 #t3lib_div::debug($this->piVars);
-				$insertArr['name']=htmlspecialchars($this->piVars['name']);
-                $insertArr['email']=htmlspecialchars($this->piVars['email']);
-                $insertArr['comment']=$this->piVars['comment'];
+				$insertArr['name']=htmlspecialchars($this->piVars['name']); 
+                $insertArr['email']=htmlspecialchars($this->piVars['email']); 
+                $insertArr['comment']=$this->piVars['comment']; 
 				$insertArr['crdate']=time();
 				$insertArr['tstamp']=time();
 				$insertArr['pageid']=$pageid;
 				$insertArr['pid']=$pidList;
-				if(intval($this->conf['hideNewMsg'])>0) $insertArr['hidden']=1;
+				if(intval($this->conf['hideNewMsg'])>0) $insertArr['hidden']=1;            
 				if($this->conf['bindToGETvar']) $insertArr['piVar']=$this->conf['bindToGETvar'].'='.$lookForValue;
-
+                  
 				//Validate
 				if ( (!(eregi('^[a-z0-9_\.-]+@[a-z0-9_-]+\.[a-z0-9_\.-]+$',$insertArr['email']))) && (strlen($insertArr['email'])>0) || $insertArr['email']=="" || $insertArr['email']==$this->pi_getLL('email_value')) {
 					$err[]=$this->pi_getLL('email_error');
@@ -136,113 +142,132 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 				if($insertArr['comment']=="" || $insertArr['comment']==$this->pi_getLL('comment_value') || strlen($insertArr['comment'])<$conf['minCharsComment']) {
 					$err[]=$this->pi_getLL('comment_error');
 				}
-
+                
                 #captcha response
                 if (t3lib_extMgm::isLoaded('captcha') && $this->conf['useCaptcha'])	{
 	                session_start();
 	                if ($this->piVars['captchaResponse']!=$_SESSION['tx_captcha_string']) {
-                       $err[]=$this->pi_getLL('captcha_error');
+                       $err[]=$this->pi_getLL('captcha_error');    
                     }
 	                $_SESSION['tx_captcha_string'] = '';
                 }
-
+                
                 #freecap response
                 if (t3lib_extMgm::isLoaded('sr_freecap') && !$this->conf['useCaptcha'] && $this->conf['useFreecap'] && is_object($this->freeCap) && !$this->freeCap->checkWord($this->piVars['captcha_response'])) {
                         $err[]=$this->pi_getLL('captcha_error');
                 }
-
-
+ 
+                
 				if(count($err)>0) {
 					//error
-					$errormsg=$this->cObj->substituteMarkerArrayCached($subpart['error'],array('###ERRORMSG###'=>implode('<br />',$err)),array(),array());
+					$errormsg=$this->cObj->substituteMarkerArrayCached($subpart['error'],array('###ERRORMSG###'=>implode('<br />',$err)),array(),array()); 
 				} else {
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
                     if($this->conf['emailNewMessage']==1 && $this->conf['emailAddress'] && $this->conf['emailFrom']) {
-                         $msg=$this->cObj->substituteMarkerArrayCached($subpart['mail'],array('###USER###'=>$insertArr['name'],'###DATE###'=>date('Y-m-d H:i',$insertArr['crdate']),'###COMMENT###'=>$insertArr['comment'],'###PAGELINK###'=>'http://'.t3lib_div::getIndpEnv('HTTP_HOST').'/'.$this->pi_getPageLink($pageid),'###PAGETITLE###'=>$GLOBALS['TSFE']->page['title']),array(),array());
+                         $msg=$this->cObj->substituteMarkerArrayCached($subpart['mail'],array('###USER###'=>$insertArr['name'],'###DATE###'=>date('Y-m-d H:i',$insertArr['crdate']),'###COMMENT###'=>$insertArr['comment'],'###PAGELINK###'=>'http://'.t3lib_div::getIndpEnv('HTTP_HOST').'/'.$this->pi_getPageLink($pageid),'###PAGETITLE###'=>$GLOBALS['TSFE']->page['title']),array(),array());  
                          $this->cObj->sendNotifyEmail($msg, $this->conf['emailAddress'], '', $this->conf['emailFrom'], $email_fromName='PageComments', $this->conf['emailFrom']);
                     }
 					header('Location: '.t3lib_div::getIndpEnv('REQUEST_URI').(strpos(t3lib_div::getIndpEnv('REQUEST_URI'),'?')?'&':'?').$this->prefixId.'[showComments]=1&'.$this->prefixId.'[success]=1');
 					exit;
 				}
-
+				
 			}
-
-
-			//Kommentare anzeigen
-
-
+				
+			
+			//show comments
+               
+            
             $order='tstamp '.($this->piVars['showForm']==1 ? $this->conf['sortOrderOnForm']:$this->conf['sortOrder']);
 			$limit=$this->conf['maxRecords']>0 ? $this->conf['maxRecords'] : '';
 			$result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_skpagecomments_comments','pageid="'.$pageid.'" AND pid IN('.$pidList.') AND hidden="0" AND deleted="0"'.$addWhere,$order,$limit);
-
+            
 			if($reccount>0) {
-				if($this->conf['showCount']==1) $content .= '<div class="'.$this->prefixCSS.'counter">'.$reccount.' '.(($reccount==1) ? $this->pi_getLL('comment') : $this->pi_getLL('comments')).'</div>';
-				$content.='<a name="comments"></a>';
+				if($this->conf['showCount']==1) {
+                    #$content .= '<div class="'.$this->prefixCSS.'counter">'.$reccount.' '.(($reccount==1) ? $this->pi_getLL('comment') : $this->pi_getLL('comments')).'</div>';
+                    $markerArray['###COMMENTCOUNT###']=$reccount.' '.($reccount==1 ? $this->pi_getLL('comment') : $this->pi_getLL('comments'));
+                    
+                } else {
+                    $markerArray['###COMMENTCOUNT###']='';
+                }
+				#$content.='<a name="comments"></a>'; 
+                $list=$this->cObj->getSubpart($subpart['comments'],'###COMMENTLIST###');          
                 while($temp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($result)) {
 					if(intval($this->conf['showEmail '])!=0) {
                         $this->conf['commentName.']['typolink.']['parameter']=$temp['email'];
                         $this->conf['commentEmail.']['typolink.']['parameter']=$temp['email'];
                     }
-
+                    
                     $markerArray['###DATEPHRASE###']=sprintf($this->pi_getLL('wrote'),date('d.m.Y H:i',$temp['tstamp']));
                     $markerArray['###DATE###']=date('d.m.Y H:i',$temp['tstamp']);
                     $markerArray['###NAME###']=$this->cObj->stdWrap($temp['name'],$this->conf['commentName.']);
-
+                    
                     $markerArray['###EMAIL###']=$this->cObj->stdWrap($temp['email'],$this->conf['commentEmail.']);
                     $markerArray['###COMMENT###']=$this->displayComment($temp['comment']);
-                    $content.=$this->cObj->substituteMarkerArrayCached($subpart['comments'],$markerArray,$subpartArray,array());
+                    $contentList.=$this->cObj->substituteMarkerArrayCached($list,$markerArray,array(),array());    
 				}
+                $subpartArray['###COMMENTLIST###']=$contentList;
+                $content.=$this->cObj->substituteMarkerArrayCached($subpart['comments'],$markerArray,$subpartArray,array());  
+                $markerArray=array();   
 			}
-
-
+			
+			
 			// Ist eingeloggter User ?
 			$feuser=(isset($GLOBALS['TSFE']->fe_user->user['uid']));
-
-
-			#t3lib_div::debug($this->conf);
+		 
+            
 			if($this->conf['showForm']==1 && $this->piVars['success']!=1 && (($this->conf['commentOnlyRegistered']==0) || ($this->conf['commentOnlyRegistered']==1 && $feuser===true))) {
 				if($this->conf['showFormLink']==1 && $this->piVars['showForm']!=1) {
                     #generate link for form
-					if($this->conf['bindToGETvar']) {
-						$this->pi_linkToPage($this->pi_getLL('new_comment'),$pageid,'',array_merge($thisURLParamsArray,array($this->prefixId.'[showComments]'=>1,$this->prefixId.'[showForm]'=>1)));
-						$l=$this->cObj->lastTypoLinkUrl;
-						if(intval($lookForValue)>0) $content.=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$l.'#9999'));
-					} else {
-						$this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1);
-						$l=$this->cObj->lastTypoLinkUrl;
-						if(substr($l,0,4)!='http') $l=t3lib_div::getIndpEnv('HTTP_HOST').'/'.$l;
-						$content.=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$l.'#9999'));
+                    $subpartArray['###FORMLINK###']='';
+                    if($this->conf['bindToGETvar']) {
+                        $this->pi_linkToPage($this->pi_getLL('new_comment'),$pageid,'',array_merge($thisURLParamsArray,array($this->prefixId.'[showComments]'=>1,$this->prefixId.'[showForm]'=>1)));
+                        $l=$this->cObj->lastTypoLinkUrl;
+                        if(intval($lookForValue)>0) {
+                            $showLink=1;
+                        }
+                    } else {
+                        $this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1); 
+                        $l=$this->cObj->lastTypoLinkUrl;
+                        if(substr($l,0,4)!='http') $l=t3lib_div::getIndpEnv('HTTP_HOST').'/'.$l;
+                        $showLink=1;
+                        #$subpartArray['###FORMLINK###']=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$l.'#9999'));   
                     }
+                    $markerArray['###LINKTEXT###']=$this->pi_getLL('new_comment');  
+                    $this->conf['formLink.']['parameter']=$l.($this->conf['useSectionFormLink'] ? '#9999' : '');
+                    
+                    $wrappedSubpartArray['FORMLINKWRAP']=explode('|', $this->cObj->typolink('|',$this->conf['formLink.']));  
+                    if($showLink==1) $form.=$this->cObj->substituteMarkerArrayCached($subpart['formlink'],$markerArray,$subpartArray,$wrappedSubpartArray); 
+                    
                 } else {
-
-
+                
+                
                     //Kommentar-Formular
 				    $markerArray['###ERRORMSG###']=$errormsg;
-
+				    
                     $markerArray['###HIDDENFIELDS###']='';
-                    $markerArray['###ATT_NAME###']='';
-                    $markerArray['###ATT_EMAIL###']='';
-
+                    $markerArray['###ATT_NAME###']='';  
+                    $markerArray['###ATT_EMAIL###']='';  
+                    
                     $markerArray['###NAME###']=$this->prefixId.'[name]';
-                    $markerArray['###EMAIL###']=$this->prefixId.'[email]';
-                    $markerArray['###SUBMIT###']=$this->prefixId.'[submit]';
-                    $markerArray['###COMMENT###']=$this->prefixId.'[comment]';
-
+                    $markerArray['###EMAIL###']=$this->prefixId.'[email]';     
+                    $markerArray['###SUBMIT###']=$this->prefixId.'[submit]';  
+                    $markerArray['###COMMENT###']=$this->prefixId.'[comment]';  
+                    
                     $markerArray['###V_NAME###']=$feuser?$GLOBALS['TSFE']->fe_user->user['username']:$insertArr['name']?$insertArr['name']:$this->pi_getLL('name_value');
                     $markerArray['###V_EMAIL###']=$feuser?$GLOBALS['TSFE']->fe_user->user['email']:$insertArr['email']?$insertArr['email']:$this->pi_getLL('email_value');
-                    $markerArray['###V_COMMENT###']=$insertArr['comment']?$insertArr['comment']:$this->pi_getLL('comment_value');
-                    $markerArray['###V_SUBMIT###']=$this->pi_getLL('submit');
-
-                    $markerArray['###L_NAME###']=$this->pi_getLL('name');
-                    $markerArray['###L_EMAIL###']=$this->pi_getLL('mail');
-                    $markerArray['###L_COMMENT###']=$this->pi_getLL('comment');
-                    $markerArray['###L_CAPTCHA###']=$this->pi_getLL('captcha');
-
-
-                    $markerArray['###ACTION###']=t3lib_div::getIndpEnv('REQUEST_URI').'#endofcommentform';
-                    $markerArray['###SMILEYS###']=$this->smileys();
+                    $markerArray['###V_COMMENT###']=$insertArr['comment']?$insertArr['comment']:$this->pi_getLL('comment_value'); 
+                    $markerArray['###V_SUBMIT###']=$this->pi_getLL('submit'); 
+                     
+                    $markerArray['###L_NAME###']=$this->pi_getLL('name');    
+                    $markerArray['###L_EMAIL###']=$this->pi_getLL('mail');    
+                    $markerArray['###L_COMMENT###']=$this->pi_getLL('comment');    
+                    $markerArray['###L_CAPTCHA###']=$this->pi_getLL('captcha');    
+                       
+                       
+                    $markerArray['###ACTION###']=t3lib_div::getIndpEnv('REQUEST_URI').'#endofcommentform';  
+                    $markerArray['###SMILEYS###']=$this->smileys();  
                     $markerArray['###LEGEND###']=$this->pi_getLL('new_comment');
-
+                    
                     #captcha
                     if (t3lib_extMgm::isLoaded('captcha') && $this->conf['useCaptcha'])	{
 	                    $markerArray['###CAPTCHAINPUT###'] = '<input type="text" id="captcha" size=10 name="'.$this->prefixId.'[captchaResponse]" value="" />';
@@ -250,49 +275,49 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     } else {
 	                    $subpartArray['###CAPTCHA###'] = '';
                     }
-
+                    
                     #freecap
                     if (t3lib_extMgm::isLoaded('sr_freecap') && !$this->conf['useCaptcha'] && $this->conf['useFreecap']) {
                         $markerArray = array_merge($markerArray, $this->freeCap->makeCaptcha());
-                        $subpartArray['###CAPTCHA###'] = '';
+                        $subpartArray['###CAPTCHA###'] = '';  
                     } else {
-                        $subpartArray['###CAPTCHA_INSERT###'] = '';
+                        $subpartArray['###CAPTCHA_INSERT###'] = ''; 
                     }
-
-                    if($feuser) {
+                    
+                    if($feuser) {  
                          if($conf['showRegisteredFields']==1) {
-                            $markerArray['###ATT_NAME###']='disabled="disabled"';
-                            $markerArray['###ATT_EMAIL###']='disabled="disabled"';
+                            $markerArray['###ATT_NAME###']='disabled="disabled"';  
+                            $markerArray['###ATT_EMAIL###']='disabled="disabled"'; 
                          } else {
-                            $subpartArray['###FORM_NAME###'] = '';
-                            $subpartArray['###FORM_EMAIL###'] = '';
+                            $subpartArray['###FORM_NAME###'] = ''; 
+                            $subpartArray['###FORM_EMAIL###'] = ''; 
                             $markerArray['###HIDDENFIELDS###'].='<input type="hidden" name="'.$this->prefixId.'[name]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['username'].'" />
-                            <input type="hidden" name="'.$this->prefixId.'[email]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['email'].'" />';
+                            <input type="hidden" name="'.$this->prefixId.'[email]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['email'].'" />';    
                          }
                     }
-
-                    $content.=$this->cObj->substituteMarkerArrayCached($subpart['form'],$markerArray,$subpartArray,array()).'<a name="9999">&nbsp;</a>';
+                   
+                    $form.=$this->cObj->substituteMarkerArrayCached($subpart['form'],$markerArray,$subpartArray,array()).'<a name="9999">&nbsp;</a>'; 
                 }
 			}
 		}
-
-		return $this->pi_wrapInBaseClass($content);
+		
+		return $this->pi_wrapInBaseClass($this->conf['showFormOnTop']==1 ? $form.$content : $content.$form);
 	}
-
+    
     function smileys() {
         $res=t3lib_extMgm::siteRelPath('sk_pagecomments').'res/smileys/';
         $GLOBALS['TSFE']->additionalHeaderData['sk_pagecomments_smileys'] = '
 					<script type="text/javascript">
 						/*<![CDATA[*/
-						function dosmilie(Smilie)
+						function dosmilie(Smilie)	
                         {
-	                        document.getElementById(\'comment\').focus();
+	                        document.getElementById(\'comment\').focus();  
                             document.getElementById(\'comment\').value+=" "+Smilie+" ";
-
-                        }
+	                        
+                        }   
 						/*]]>*/
 					</script>
-				';
+				';				
         $smile='<div id="skpagecomments-smileys">
 			<a class="noul" href="javascript:dosmilie(\':)\')"><img src="'.$res.'icon_smile.gif" alt="smile" border="0" /></a>
 			<a class="noul" href="javascript:dosmilie(\';)\')"><img src="'.$res.'icon_wink.gif" alt="zwinker" border="0" /></a>
@@ -313,11 +338,11 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			<a class="noul" href="javascript:dosmilie(\':surprised:\')"><img src="'.$res.'icon_surprised.gif" alt="Surprised" border="0" /></a>
 			</div>';
         return $smile;
-
+		
     }
-
+    
     function displayComment($comment) {
-        $res=t3lib_extMgm::siteRelPath('sk_pagecomments').'res/smileys/';
+        $res=t3lib_extMgm::siteRelPath('sk_pagecomments').'res/smileys/';   
         $comment = str_replace(":)",'<img src="'.$res.'icon_smile.gif" alt="smile" class="smilie" alt="smile" border="0" />',$comment);
 	    $comment = str_replace(";)",'<img src="'.$res.'icon_wink.gif" alt="zwinker" class="smilie" />',$comment);
 	    $comment = str_replace(":D",'<img src="'.$res.'icon_biggrin.gif" alt="big green" class="smilie" border="0" />',$comment);
@@ -336,25 +361,26 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	    $comment = ereg_replace(":rolleyes:", '<img src="'.$res.'icon_rolleyes.gif" alt="Rolleyes" class="smilie" border="0" />', $comment);
 	    $comment = ereg_replace(":sad:", '<img src="'.$res.'icon_sad.gif" alt="Sad" class="smilie" border="0" />', $comment);
 	    $comment = ereg_replace(":surprised:", '<img src="'.$res.'icon_surprised.gif" alt="Surprised" class="smilie" border="0" />', $comment);
-
-
+	    
+	    
 	    //Zeilenumbrüche umwandeln
 	    $comment=preg_replace('/\r\n|\r|\n/', " \n", $comment);
 
 	    //Links umwandeln
 	    $comment=preg_replace("/http:\/\/(.+?)[[:space:]]/si"," <a href=\"http://$1\" target=\"_blank\">$1</a> ",$comment);
-
-
+        
+        
         return nl2br($comment);
     }
-
+    
     function cleanUrlPars($arr) {
         $u=array();
         foreach($arr as $var=>$val) {
             # stristr($val,'cHash')===false &&
-            if(stristr($val,$this->prefixId)===false && substr($val,0,3)!='id=') {
-                $tmp=explode('=',$val);
-                $u[$tmp[0]]=$tmp[1];
+            if(stristr($var,$this->prefixId)===false && substr($var,0,3)!='id=') {
+                #$tmp=explode('=',$val);
+                #$u[$tmp[0]]=$tmp[1];
+                $u[$var]=$val;
             }
         }
         return $u;
