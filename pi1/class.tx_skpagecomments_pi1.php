@@ -45,7 +45,6 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		
-        #t3lib_div::debug( $GLOBALS['TSFE']->page['title']);
         
 		$pageid = $GLOBALS['TSFE']->id; //page-id
 		$pidList = $this->pi_getPidList($this->cObj->data['pages'],$this->conf["recursive"]);
@@ -74,9 +73,6 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 
 			
 		//Conf
-        #t3lib_div::debug($_GET);
-        #$thisURLParams=parse_url(t3lib_div::getIndpEnv('REQUEST_URI'));
-        #$thisURLParamsArray=$this->cleanUrlPars(explode('&',$thisURLParams['query']));
         $thisURLParamsArray=$this->cleanUrlPars($_GET);   
          
 		$addWhere='';
@@ -92,7 +88,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
             } else {
                 $getvar=t3lib_div::GPvar($var);
             }
-            #t3lib_div::debug($lookForValue,'NEWS-ID');
+            
             
         }
         
@@ -121,8 +117,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			//Wurde gepostet ?
 			if (isset($this->piVars['submit'])) {
                 
-                #t3lib_div::debug($this->piVars);
-				$insertArr['name']=htmlspecialchars($this->piVars['name']); 
+               $insertArr['name']=htmlspecialchars($this->piVars['name']); 
                 $insertArr['email']=htmlspecialchars($this->piVars['email']); 
                 $insertArr['comment']=$this->piVars['comment']; 
 				$insertArr['crdate']=time();
@@ -162,6 +157,13 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 					//error
 					$errormsg=$this->cObj->substituteMarkerArrayCached($subpart['error'],array('###ERRORMSG###'=>implode('<br />',$err)),array(),array()); 
 				} else {
+                    if($this->conf['useCookies']>0) {
+                        //store values in cookie
+                        $time = 60*60*24*$this->conf['useCookies'];
+					    setcookie($this->$prefixId.'_name', $insertArr['name'], time()+$time);
+					    setcookie($this->$prefixId.'_email', $insertArr['email'], time()+$time);
+                    }
+                    //insert comment
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
                     if($this->conf['emailNewMessage']==1 && $this->conf['emailAddress'] && $this->conf['emailFrom']) {
                          $msg=$this->cObj->substituteMarkerArrayCached($subpart['mail'],array('###USER###'=>$insertArr['name'],'###DATE###'=>date('Y-m-d H:i',$insertArr['crdate']),'###COMMENT###'=>$insertArr['comment'],'###PAGELINK###'=>'http://'.t3lib_div::getIndpEnv('HTTP_HOST').'/'.$this->pi_getPageLink($pageid),'###PAGETITLE###'=>$GLOBALS['TSFE']->page['title']),array(),array());  
@@ -252,6 +254,11 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     $markerArray['###EMAIL###']=$this->prefixId.'[email]';     
                     $markerArray['###SUBMIT###']=$this->prefixId.'[submit]';  
                     $markerArray['###COMMENT###']=$this->prefixId.'[comment]';  
+                    
+                    if($this->conf['useCookies']>0 && !$feuser) {  
+                        $insertArr['name']=$_COOKIE[$this->$prefixId.'_name'];
+                        $insertArr['email']=$_COOKIE[$this->$prefixId.'_email']; 
+                    }
                     
                     $markerArray['###V_NAME###']=$feuser?$GLOBALS['TSFE']->fe_user->user['username']:$insertArr['name']?$insertArr['name']:$this->pi_getLL('name_value');
                     $markerArray['###V_EMAIL###']=$feuser?$GLOBALS['TSFE']->fe_user->user['email']:$insertArr['email']?$insertArr['email']:$this->pi_getLL('email_value');
@@ -385,6 +392,14 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         }
         return $u;
     }
+    
+    
+    function extraItemMarkerProcessor($markerArray, $row, $lConf, $parentObject) {
+    
+        t3lib_div::debug($markerArray);
+        return  $markerArray;
+    }
+
 }
 
 

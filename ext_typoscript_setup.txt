@@ -43,7 +43,7 @@ plugin.tx_skpagecomments_pi1 {
 	showCount = 1
     
 	sortOrder = DESC
-    sortOrderOnForm = ASC
+	sortOrderOnForm = ASC
 	maxRecords = 
 	commentOnlyRegistered = 
 	showRegisteredFields = 0
@@ -51,13 +51,13 @@ plugin.tx_skpagecomments_pi1 {
 	useFreecap = 1
 	
 	emailNewMessage = 1
-    emailAddress = xxx@xxx.com
+	emailAddress = xxx@xxx.com
 	emailFrom = pagecomments@xxx.com 
     
-    hideNewMsg = 0
+	hideNewMsg = 0
 	minCharsName = 3
 	minCharsComment = 8
 	
-	
+	useCookies = 14
 	
 }
