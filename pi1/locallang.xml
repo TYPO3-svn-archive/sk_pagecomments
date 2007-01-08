@@ -14,8 +14,10 @@
             <label index="comment">Comment</label>
             <label index="name">Name</label>
             <label index="mail">Email</label>
+            <label index="homepage">Homepage</label>
             <label index="name_value">Your Name</label>
             <label index="email_value">Your Emailadress</label>
+            <label index="homepage_value">www.yourdomain.com</label>
             <label index="comment_value">Your Comment</label>
             <label index="name_error">Please fill out your name!</label>
             <label index="email_error">Invalid email!</label>
@@ -35,6 +37,7 @@
             <label index="comment">Kommentar</label>
             <label index="name">Name</label>
             <label index="mail">Email</label>
+            <label index="homepage">Homepage</label>
             <label index="name_value">Dein Name</label>
             <label index="email_value">Deine Emailadresse</label>
             <label index="comment_value">Dein Kommentar</label>

@@ -119,14 +119,18 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 
                $insertArr['name']=htmlspecialchars($this->piVars['name']); 
                 $insertArr['email']=htmlspecialchars($this->piVars['email']); 
+                $insertArr['homepage']=htmlspecialchars(strtolower($this->piVars['homepage'])); 
                 $insertArr['comment']=$this->piVars['comment']; 
 				$insertArr['crdate']=time();
 				$insertArr['tstamp']=time();
 				$insertArr['pageid']=$pageid;
 				$insertArr['pid']=$pidList;
-				if(intval($this->conf['hideNewMsg'])>0) $insertArr['hidden']=1;            
+				
+                if(intval($this->conf['hideNewMsg'])>0) $insertArr['hidden']=1;            
 				if($this->conf['bindToGETvar']) $insertArr['piVar']=$this->conf['bindToGETvar'].'='.$lookForValue;
-                  
+                if(substr($insertArr['homepage'],0,7)=='http://') $insertArr['homepage']=substr($insertArr['homepage'],8);
+                if($insertArr['homepage']==$this->pi_getLL('homepage_value')) $insertArr['homepage']=''; 
+                
 				//Validate
 				if ( (!(eregi('^[a-z0-9_\.-]+@[a-z0-9_-]+\.[a-z0-9_\.-]+$',$insertArr['email']))) && (strlen($insertArr['email'])>0) || $insertArr['email']=="" || $insertArr['email']==$this->pi_getLL('email_value')) {
 					$err[]=$this->pi_getLL('email_error');
@@ -161,7 +165,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                         //store values in cookie
                         $time = 60*60*24*$this->conf['useCookies'];
 					    setcookie($this->$prefixId.'_name', $insertArr['name'], time()+$time);
-					    setcookie($this->$prefixId.'_email', $insertArr['email'], time()+$time);
+                        setcookie($this->$prefixId.'_email', $insertArr['email'], time()+$time);
+					    setcookie($this->$prefixId.'_homepage', $insertArr['homepage'], time()+$time);
                     }
                     //insert comment
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
@@ -204,6 +209,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     $markerArray['###NAME###']=$this->cObj->stdWrap($temp['name'],$this->conf['commentName.']);
                     
                     $markerArray['###EMAIL###']=$this->cObj->stdWrap($temp['email'],$this->conf['commentEmail.']);
+                    $markerArray['###HOMEPAGE###']=$this->cObj->stdWrap($temp['homepage'],$this->conf['commentHomepage.']);
                     $markerArray['###COMMENT###']=$this->displayComment($temp['comment']);
                     $contentList.=$this->cObj->substituteMarkerArrayCached($list,$markerArray,array(),array());    
 				}
@@ -252,21 +258,25 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     
                     $markerArray['###NAME###']=$this->prefixId.'[name]';
                     $markerArray['###EMAIL###']=$this->prefixId.'[email]';     
+                    $markerArray['###HOMEPAGE###']=$this->prefixId.'[homepage]';     
                     $markerArray['###SUBMIT###']=$this->prefixId.'[submit]';  
                     $markerArray['###COMMENT###']=$this->prefixId.'[comment]';  
                     
                     if($this->conf['useCookies']>0 && !$feuser) {  
                         $insertArr['name']=$_COOKIE[$this->$prefixId.'_name'];
                         $insertArr['email']=$_COOKIE[$this->$prefixId.'_email']; 
+                        $insertArr['homepage']=$_COOKIE[$this->$prefixId.'_homepage']; 
                     }
                     
                     $markerArray['###V_NAME###']=$feuser?$GLOBALS['TSFE']->fe_user->user['username']:$insertArr['name']?$insertArr['name']:$this->pi_getLL('name_value');
                     $markerArray['###V_EMAIL###']=$feuser?$GLOBALS['TSFE']->fe_user->user['email']:$insertArr['email']?$insertArr['email']:$this->pi_getLL('email_value');
+                    $markerArray['###V_HOMEPAGE###']=$feuser?$GLOBALS['TSFE']->fe_user->user['www']:$insertArr['homepage']?$insertArr['homepage']:$this->pi_getLL('homepage_value');
                     $markerArray['###V_COMMENT###']=$insertArr['comment']?$insertArr['comment']:$this->pi_getLL('comment_value'); 
                     $markerArray['###V_SUBMIT###']=$this->pi_getLL('submit'); 
                      
                     $markerArray['###L_NAME###']=$this->pi_getLL('name');    
                     $markerArray['###L_EMAIL###']=$this->pi_getLL('mail');    
+                    $markerArray['###L_HOMEPAGE###']=$this->pi_getLL('homepage');    
                     $markerArray['###L_COMMENT###']=$this->pi_getLL('comment');    
                     $markerArray['###L_CAPTCHA###']=$this->pi_getLL('captcha');    
                        
@@ -298,8 +308,10 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                          } else {
                             $subpartArray['###FORM_NAME###'] = ''; 
                             $subpartArray['###FORM_EMAIL###'] = ''; 
+                            $subpartArray['###FORM_HOMEPAGE###'] = ''; 
                             $markerArray['###HIDDENFIELDS###'].='<input type="hidden" name="'.$this->prefixId.'[name]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['username'].'" />
-                            <input type="hidden" name="'.$this->prefixId.'[email]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['email'].'" />';    
+                            <input type="hidden" name="'.$this->prefixId.'[email]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['email'].'" />    
+                            <input type="hidden" name="'.$this->prefixId.'[homepage]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['www'].'" />';    
                          }
                     }
                    

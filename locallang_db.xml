@@ -9,9 +9,21 @@
 			<label index="tx_skpagecomments_comments">Comments</label>
 			<label index="tx_skpagecomments_comments.name">Name</label>
 			<label index="tx_skpagecomments_comments.email">Email</label>
+            <label index="tx_skpagecomments_comments.homepage">homepage</label>
 			<label index="tx_skpagecomments_comments.comment">Comment</label>
 			<label index="tx_skpagecomments_comments.pageid">PageID</label>
 			<label index="tx_skpagecomments_comments.allowed">allowed</label>
+			<label index="tx_skpagecomments_comments.pivar">piVar</label>
+			<label index="tt_content.list_type_pi1">Page Comments</label>
+		</languageKey>
+        <languageKey index="de" type="array">
+			<label index="tx_skpagecomments_comments">Kommentare</label>
+			<label index="tx_skpagecomments_comments.name">Name</label>
+			<label index="tx_skpagecomments_comments.email">E-Mail</label>
+            <label index="tx_skpagecomments_comments.homepage">Homepage</label>
+			<label index="tx_skpagecomments_comments.comment">Kommentar</label>
+			<label index="tx_skpagecomments_comments.pageid">Seiten-ID</label>
+			<label index="tx_skpagecomments_comments.allowed">erlaubt</label>
 			<label index="tx_skpagecomments_comments.pivar">piVar</label>
 			<label index="tt_content.list_type_pi1">Page Comments</label>
 		</languageKey>

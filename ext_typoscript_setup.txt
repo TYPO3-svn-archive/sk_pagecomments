@@ -15,10 +15,12 @@ plugin.tx_skpagecomments_pi1 {
 		.tx-skpagecomments-pi1 form p img {vertical-align:bottom;margin-left:8px;}
 		.tx-skpagecomments-pi1 div#skpagecomments-smileys {float:right;margin-right:12px;}
 		.tx-skpagecomments-pi1 form input#name,
-		.tx-skpagecomments-pi1 form input#email {width:320px;background:#FFE1BF;}
+		.tx-skpagecomments-pi1 form input#email,
+        .tx-skpagecomments-pi1 form input#homepage {width:320px;background:#FFE1BF;}
 		.tx-skpagecomments-pi1 form textarea {width:320px;height:160px;background:#FFE1BF;}
 		.tx-skpagecomments-pi1 form input#name:focus,
 		.tx-skpagecomments-pi1 form input#email:focus,
+        .tx-skpagecomments-pi1 form input#homepage:focus,
 		.tx-skpagecomments-pi1 form textarea:focus {background:#FFC480;} 
 		.tx-skpagecomments-pi1 form input#skcommentssubmit {background:#FFA540;color:#804400;float:right;margin:8px 20px;}
 	)

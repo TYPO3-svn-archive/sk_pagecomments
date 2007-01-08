@@ -4,7 +4,7 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 $TCA["tx_skpagecomments_comments"] = Array (
 	"ctrl" => $TCA["tx_skpagecomments_comments"]["ctrl"],
 	"interface" => Array (
-		"showRecordFieldList" => "sys_language_uid,l18n_parent,l18n_diffsource,hidden,starttime,endtime,fe_group,name,email,comment,pageid,allowed,pivar"
+		"showRecordFieldList" => "sys_language_uid,l18n_parent,l18n_diffsource,hidden,starttime,endtime,fe_group,name,email,homepage,comment,pageid,allowed,pivar"
 	),
 	"feInterface" => $TCA["tx_skpagecomments_comments"]["feInterface"],
 	"columns" => Array (
@@ -107,6 +107,27 @@ $TCA["tx_skpagecomments_comments"] = Array (
 				"eval" => "required,trim",
 			)
 		),
+        "homepage" => Array (        
+            "exclude" => 0,        
+            "label" => "LLL:EXT:sk_pagecomments/locallang_db.xml:tx_skpagecomments_comments.homepage",        
+            "config" => Array (
+                "type"     => "input",
+                "size"     => "15",
+                "max"      => "255",
+                "checkbox" => "",
+                "eval"     => "trim",
+                "wizards"  => array(
+                    "_PADDING" => 2,
+                    "link"     => array(
+                        "type"         => "popup",
+                        "title"        => "Link",
+                        "icon"         => "link_popup.gif",
+                        "script"       => "browse_links.php?mode=wizard",
+                        "JSopenParams" => "height=300,width=500,status=0,menubar=0,scrollbars=1"
+                    )
+                )
+            )
+        ), 
 		"comment" => Array (		
 			"exclude" => 1,		
 			"label" => "LLL:EXT:sk_pagecomments/locallang_db.xml:tx_skpagecomments_comments.comment",		
@@ -149,7 +170,7 @@ $TCA["tx_skpagecomments_comments"] = Array (
 		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, name, email, comment, pageid, allowed, pivar")
+		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, name, email, homepage, comment, pageid, allowed, pivar")
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "starttime, endtime, fe_group")
