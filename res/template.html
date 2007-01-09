@@ -1,3 +1,6 @@
+TEMPLATE FOR PAGE COMMENTS
+
+
 <h1>ShowCommentLink</h1>
 <!--###COMMENTLINK### start -->  
     <!--###COMMENTLINKWRAP###  -->  
@@ -20,7 +23,8 @@
 <div class="sk-pagecomments-counter">###COMMENTCOUNT###</div>
 <!--###COMMENTLIST### start -->                                  
     <div class="sk-pagecomments-headline">
-    ###NAME### ###EMAIL### ###DATEPHRASE###
+        <span class="sk-pagecomments-namedate"> ###NAME### ###DATEPHRASE### </span>
+        <span class="sk-pagecomments-emailhomepage"><!--###EMAILLINKWRAP###  -->###EMAIL###<!--###EMAILLINKWRAP###  --> <!--###HOMEPAGELINKWRAP###  -->###HOMEPAGE###<!--###HOMEPAGELINKWRAP###  --> </span>
     </div>
     <div class="sk-pagecomments-comment">###COMMENT###</div>
 <!--###COMMENTLIST### end -->
@@ -52,16 +56,22 @@
 </p>
 <!--###FORM_EMAIL### end -->
 
-<!--###FORM_Homepage### start -->
+<!--###FORM_HOMEPAGE### start -->
 <p>
     <label for="homepage">###L_HOMEPAGE###</label>
     <input type="text" id="homepage" name="###HOMEPAGE###" size="25" value="###V_HOMEPAGE###" ###ATT_HOMEPAGE### />
 </p>
-<!--###FORM_EMAIL### end -->
+<!--###FORM_HOMEPAGE### end -->
+
+<!--###FORM_VALUES_USER_LOGGED_IN### start -->
+<p class="userinfos">
+ User ###V_NAME###  (###V_EMAIL### / ###V_HOMEPAGE###)
+</p>
+<!--###FORM_VALUES_USER_LOGGED_IN### end -->
 
 <p>
   <label for="comment">###L_COMMENT###</label>
-  <div class="smileytext">###SMILEYS###<br />
+  <div class="smileytext">###SMILEYS###
   <textarea id="comment" name="###COMMENT###" cols="20" rows="5" wrap="virtual">###V_COMMENT###</textarea>
   </div>
 </p>

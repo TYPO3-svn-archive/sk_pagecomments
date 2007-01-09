@@ -5,15 +5,19 @@ plugin.tx_skpagecomments_pi1 {
 		.sk-pagecomments-error {color:red;font-weight:bold;background:#FFE8CF;border:1px solid #000;margin:8px 12px;padding:4px;}
 		.sk-pagecomments-success {color:blue;font-weight:bold;}
 		.sk-pagecomments-counter {color:#600;text-align:right;text-decoration:underline;margin-bottom:12px;}
-		.sk-pagecomments-headline {border-bottom:1px solid #000;font-weight:bold;background:#d1d1d1;padding-left:6px;}
-		.sk-pagecomments-comment{background:#f1f1f1;padding:4px 28px;}
+        .sk-pagecomments-headline {border-bottom:1px solid #000;font-weight:bold;background:#d1d1d1;padding-left:6px;height:20px;}
+		.sk-pagecomments-namedate {float:left;}
+        .sk-pagecomments-emailhomepage{float:right;}
+		.sk-pagecomments-comment{background:#f1f1f1;padding:4px 28px;clear:both;}
 		.tx-skpagecomments-pi1 form {margin:16px 0;width:480px;}
-		.tx-skpagecomments-pi1 form fieldset {border:1px solid #eee;}
+        .tx-skpagecomments-pi1 form fieldset {border:1px solid #eee;}
+		.tx-skpagecomments-pi1 form p.userinfos {text-align:center;padding:6px;}
+        
 		.tx-skpagecomments-pi1 form legend {background:#f1f1f1;border:1px solid #000;padding:4px;}
 		.tx-skpagecomments-pi1 form label {width:120px;float:left;margin-left:8px;}
 		.tx-skpagecomments-pi1 form p {margin:6px 0;}
 		.tx-skpagecomments-pi1 form p img {vertical-align:bottom;margin-left:8px;}
-		.tx-skpagecomments-pi1 div#skpagecomments-smileys {float:right;margin-right:12px;}
+		.tx-skpagecomments-pi1 div.smileytext{margin-left:130px;}
 		.tx-skpagecomments-pi1 form input#name,
 		.tx-skpagecomments-pi1 form input#email,
         .tx-skpagecomments-pi1 form input#homepage {width:320px;background:#FFE1BF;}
@@ -33,16 +37,21 @@ plugin.tx_skpagecomments_pi1 {
 	
 	commentEmail {
 		#stdWrap for Email in Comments
-		wrap = [|]
-		if.equals = DontShow
+        override = email
+	}
+	
+    commentHomepage {
+		#stdWrap for Homepage in Comments
+        override = homepage
 	}
 	
 	showComments = 1
 	showCommentsLink = 1
 	showForm = 1
 	showFormLink = 1
-	showEmail = 0
 	showCount = 1
+    
+    dateFormat = d.m.Y H:i
     
 	sortOrder = DESC
 	sortOrderOnForm = ASC
@@ -52,6 +61,8 @@ plugin.tx_skpagecomments_pi1 {
 	useCaptcha = 1
 	useFreecap = 1
 	
+    useSectionFormLink=1
+    
 	emailNewMessage = 1
 	emailAddress = xxx@xxx.com
 	emailFrom = pagecomments@xxx.com 
