@@ -164,9 +164,9 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     if($this->conf['useCookies']>0) {
                         //store values in cookie
                         $time = 60*60*24*$this->conf['useCookies'];
-					    setcookie($this->$prefixId.'_name', $insertArr['name'], time()+$time);
-                        setcookie($this->$prefixId.'_email', $insertArr['email'], time()+$time);
-					    setcookie($this->$prefixId.'_homepage', $insertArr['homepage'], time()+$time);
+					    setcookie($this->prefixId.'_name', $insertArr['name'], time()+$time);
+                        setcookie($this->prefixId.'_email', $insertArr['email'], time()+$time);
+					    setcookie($this->prefixId.'_homepage', $insertArr['homepage'], time()+$time);
                     }
                     //insert comment
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
@@ -246,7 +246,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                         $this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1); 
                         $l=$this->cObj->lastTypoLinkUrl;
                         #t3lib_div::debug($l,'der link');
-                        #if(substr($l,0,4)!='http') $l=t3lib_div::getIndpEnv('HTTP_HOST').'/'.$l;
+                        if(substr($l,0,4)!='http' && substr($l,0,5)!='index') $l=t3lib_div::getIndpEnv('HTTP_HOST').'/'.$l;
                         $showLink=1;
                         #$subpartArray['###FORMLINK###']=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$l.'#9999'));   
                     }
@@ -275,9 +275,9 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                         $markerArray['###COMMENT###']=$this->prefixId.'[comment]';  
                         
                         if($this->conf['useCookies']>0 && !$feuser) {  
-                            $insertArr['name']=$_COOKIE[$this->$prefixId.'_name'];
-                            $insertArr['email']=$_COOKIE[$this->$prefixId.'_email']; 
-                            $insertArr['homepage']=$_COOKIE[$this->$prefixId.'_homepage']; 
+                            $insertArr['name']=$_COOKIE[$this->prefixId.'_name'];
+                            $insertArr['email']=$_COOKIE[$this->prefixId.'_email']; 
+                            $insertArr['homepage']=$_COOKIE[$this->prefixId.'_homepage']; 
                         }
                         
                         $markerArray['###V_NAME###']=$feuser?$GLOBALS['TSFE']->fe_user->user['username']:$insertArr['name']?$insertArr['name']:$this->pi_getLL('name_value');

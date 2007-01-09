@@ -29,8 +29,7 @@ CREATE TABLE tx_skpagecomments_comments (
 	homepage varchar(255) DEFAULT '' NOT NULL,
     comment text NOT NULL,
 	pageid int(11) DEFAULT '0' NOT NULL,
-	allowed tinyint(3) DEFAULT '0' NOT NULL,
-	pivar tinytext NOT NULL,
+    pivar tinytext NOT NULL,
 	
 	PRIMARY KEY (uid),
 	KEY parent (pid)

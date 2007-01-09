@@ -146,18 +146,7 @@ $TCA["tx_skpagecomments_comments"] = Array (
 				"max" => "4",
 				"eval" => "int",
 				"checkbox" => "0",
-				"range" => Array (
-					"upper" => "1000",
-					"lower" => "10"
-				),
 				"default" => 0
-			)
-		),
-		"allowed" => Array (		
-			"exclude" => 1,		
-			"label" => "LLL:EXT:sk_pagecomments/locallang_db.xml:tx_skpagecomments_comments.allowed",		
-			"config" => Array (
-				"type" => "check",
 			)
 		),
 		"pivar" => Array (		
@@ -170,7 +159,7 @@ $TCA["tx_skpagecomments_comments"] = Array (
 		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, name, email, homepage, comment, pageid, allowed, pivar")
+		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, name, email, homepage, comment, pageid, pivar")
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "starttime, endtime, fe_group")
