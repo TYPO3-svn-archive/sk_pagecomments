@@ -45,7 +45,16 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		
-        
+        //link to homepage ?
+        if(intval($this->piVars['goto'])>0) {
+            $res=$GLOBALS['TYPO3_DB']->exec_SELECTquery('homepage','tx_skpagecomments_comments','hidden=0 and deleted=0 and uid='.intval($this->piVars['goto']));
+            if($res) {
+                $row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+                
+                header('location:'.(substr($row['homepage'],0,4)=='http'?$row['homepage']:'http://'.$row['homepage']));
+                exit;
+            }
+        }
 		$pageid = $GLOBALS['TSFE']->id; //page-id
 		$pidList = $this->pi_getPidList($this->cObj->data['pages'],$this->conf["recursive"]);
 		$this->pi_USER_INT_obj = 1;  // Disable caching
@@ -74,6 +83,9 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			
 		//Conf
         $thisURLParamsArray=$this->cleanUrlPars($_GET);   
+        
+        #t3lib_div::debug($this->conf);
+        
          
 		$addWhere=$getvar='';
         if($this->conf['bindToGETvar']) {
@@ -85,6 +97,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 $getvar=t3lib_div::GPvar($p1);
                 $lookForValue=$getvar[$p2];
                 $addWhere=" AND piVar='".$this->conf['bindToGETvar'].'='.$lookForValue."'";
+                #t3lib_div::debug($addWhere);
             } else {
                 $getvar=t3lib_div::GPvar($var);
             }
@@ -171,7 +184,24 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     //insert comment
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
                     if($this->conf['emailNewMessage']==1 && $this->conf['emailAddress'] && $this->conf['emailFrom']) {
-                         $msg=$this->cObj->substituteMarkerArrayCached($subpart['mail'],array('###USER###'=>$insertArr['name'],'###DATE###'=>date('Y-m-d H:i',$insertArr['crdate']),'###COMMENT###'=>$insertArr['comment'],'###PAGELINK###'=>'http://'.t3lib_div::getIndpEnv('HTTP_HOST').'/'.$this->pi_getPageLink($pageid),'###PAGETITLE###'=>$GLOBALS['TSFE']->page['title']),array(),array());  
+                         $link='http://'.t3lib_div::getIndpEnv('HTTP_HOST').'/'.$this->pi_getPageLink($pageid);
+                         if($this->conf['bindToGETvar']) {
+                            //add extra parameter
+                            $prefix = strpos($link,'?') ? '&' : '?';
+                            $link.=$prefix.$insertArr['piVar'].'&no_cache=1'; # need no_cache for overriding any cHash
+                         }
+                         $msg=$this->cObj->substituteMarkerArrayCached(
+                            $subpart['mail'],
+                            array(
+                                '###USER###'=>$insertArr['name'],
+                                '###DATE###'=>date($this->conf['dateFormat'],$insertArr['crdate']),
+                                '###COMMENT###'=>$insertArr['comment'],
+                                '###PAGELINK###'=>$link,
+                                '###PAGETITLE###'=>$GLOBALS['TSFE']->page['title']
+                            ),
+                            array(),
+                            array()
+                         );  
                          $this->cObj->sendNotifyEmail($msg, $this->conf['emailAddress'], '', $this->conf['emailFrom'], $email_fromName='PageComments', $this->conf['emailFrom']);
                     }
 					header('Location: '.t3lib_div::getIndpEnv('REQUEST_URI').(strpos(t3lib_div::getIndpEnv('REQUEST_URI'),'?')?'&':'?').$this->prefixId.'[showComments]=1&'.$this->prefixId.'[success]=1');
@@ -200,7 +230,6 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 $list=$this->cObj->getSubpart($subpart['comments'],'###COMMENTLIST###');          
                 while($temp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($result)) {
 					
-                    
                     $markerArray['###DATEPHRASE###']=sprintf($this->pi_getLL('wrote'),date($this->conf['dateFormat'],$temp['tstamp']));
                     $markerArray['###DATE###']=date($this->conf['dateFormat'],$temp['tstamp']);
                     $markerArray['###NAME###']=$this->cObj->stdWrap($temp['name'],$this->conf['commentName.']);
@@ -209,10 +238,13 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     $this->conf['emailLink.']['parameter']=$temp['email'];
                     $linkWrapArray['###EMAILLINKWRAP###']=explode('|',$this->cObj->typolink('|',$this->conf['emailLink.']));
                     
-                    if($temp['homepage']=='') $this->conf['commentHomepage.']['override']=''; 
-                    $this->conf['homepageLink.']['parameter']=$temp['homepage'];   
-                    $linkWrapArray['###HOMEPAGELINKWRAP###']=explode('|',$this->cObj->typolink('|',$this->conf['homepageLink.']));
-                    
+                    if($temp['homepage']=='') {
+                        $this->conf['commentHomepage.']['override']=''; 
+                    } else {
+                        $this->conf['homepageLink.']['parameter']=$GLOBALS['TSFE']->id; #$temp['homepage'];   
+                        $this->conf['homepageLink.']['additionalParams']='&'.$this->prefixId.'[goto]='.$temp['uid'];
+                        $linkWrapArray['###HOMEPAGELINKWRAP###']=explode('|',$this->cObj->typolink('|',$this->conf['homepageLink.']));
+                    }
                     $markerArray['###EMAIL###']=$this->cObj->stdWrap($temp['email'],$this->conf['commentEmail.']);
                     $markerArray['###HOMEPAGE###']=$this->cObj->stdWrap($temp['homepage'],$this->conf['commentHomepage.']);
                     $markerArray['###COMMENT###']=$this->displayComment($temp['comment']);
@@ -245,8 +277,10 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     } else {
                         $this->pi_linkTP_keepPIvars($this->pi_getLL('new_comment'),array('showComments'=>1,'showForm'=>1),0,1); 
                         $l=$this->cObj->lastTypoLinkUrl;
-                        #t3lib_div::debug($l,'der link');
+                        
                         if(substr($l,0,4)!='http' && substr($l,0,5)!='index') $l=t3lib_div::getIndpEnv('HTTP_HOST').'/'.$l;
+                        #t3lib_div::debug($l,'der link');        
+                        
                         $showLink=1;
                         #$subpartArray['###FORMLINK###']=$this->cObj->typolink($this->pi_getLL('new_comment'),array('parameter'=>$l.'#9999'));   
                     }
@@ -267,6 +301,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                         $markerArray['###HIDDENFIELDS###']='';
                         $markerArray['###ATT_NAME###']='';  
                         $markerArray['###ATT_EMAIL###']='';  
+                        $markerArray['###ATT_HOMEPAGE###']='';  
                         
                         $markerArray['###NAME###']=$this->prefixId.'[name]';
                         $markerArray['###EMAIL###']=$this->prefixId.'[email]';     
@@ -293,7 +328,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                         $markerArray['###L_CAPTCHA###']=$this->pi_getLL('captcha');    
                            
                            
-                        $markerArray['###ACTION###']=t3lib_div::getIndpEnv('REQUEST_URI');  
+                        $markerArray['###ACTION###']=strtr(t3lib_div::getIndpEnv('REQUEST_URI'),array('&'=>'&amp;'));  
                         $markerArray['###SMILEYS###']=$this->smileys();  
                         $markerArray['###LEGEND###']=$this->pi_getLL('new_comment');
                         
@@ -402,13 +437,13 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	    
 	    
 	    //Zeilenumbrüche umwandeln
-	    $comment=preg_replace('/\r\n|\r|\n/', " \n", $comment);
+	    $comment=preg_replace('/\r\n|\r|\n/', "<br />", $comment);
 
 	    //Links umwandeln
-	    $comment=preg_replace("/http:\/\/(.+?)[[:space:]]/si"," <a href=\"http://$1\" target=\"_blank\">$1</a> ",$comment);
+	    #$comment=preg_replace("/http:\/\/(.+?)[[:space:]]/si"," <a href=\"http://$1\" target=\"_blank\">$1</a> ",$comment);
         
         
-        return nl2br($comment);
+        return $this->cObj->stdWrap($comment,$this->conf['comment.']);
     }
     
     function cleanUrlPars($arr) {
