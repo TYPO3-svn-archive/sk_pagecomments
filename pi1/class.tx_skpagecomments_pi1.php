@@ -280,7 +280,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 				}
                 $subpartArray['###COMMENTLIST###']=$contentList;
                 
-                if($this->piVars['success']) $content.='<a name="CommentForm">&nbsp;</a>';
+                if($this->piVars['success']) $content.='<a name="CommentForm"></a>';
                 $content.=$this->cObj->substituteMarkerArrayCached($subpart['comments'],$markerArray,$subpartArray,array());  
                 $markerArray=array();   
 			}
@@ -289,6 +289,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			// Ist eingeloggter User ?
 			$feuser=(isset($GLOBALS['TSFE']->fe_user->user['uid']));
 		 
+            if(!$this->conf['formLink.']) $this->conf['formLink.']=array();
             
 			if($this->conf['showForm']==1 && $this->piVars['success']!=1 && (($this->conf['commentOnlyRegistered']==0) || ($this->conf['commentOnlyRegistered']==1 && $feuser===true))) {
 				if($this->conf['showFormLink']==1 && $this->piVars['showForm']!=1) {
@@ -399,7 +400,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                              }
                         } else $subpartArray['###FORM_VALUES_USER_LOGGED_IN###']='';
                        
-                        $form.=$this->cObj->substituteMarkerArrayCached($subpart['form'],$markerArray,$subpartArray,array()).'<a name="CommentForm">&nbsp;</a>'; 
+                        $form.=$this->cObj->substituteMarkerArrayCached($subpart['form'],$markerArray,$subpartArray,array()).'<a name="CommentForm"></a>'; 
                     }
                 }
 			}
