@@ -11,7 +11,8 @@
 			<label index="tx_skpagecomments_comments.email">Email</label>
             <label index="tx_skpagecomments_comments.homepage">homepage</label>
 			<label index="tx_skpagecomments_comments.comment">Comment</label>
-			<label index="tx_skpagecomments_comments.pageid">PageID</label>
+            <label index="tx_skpagecomments_comments.pageid">PageID</label>
+			<label index="tx_skpagecomments_comments.parentid">ParentID</label>
 			<label index="tx_skpagecomments_comments.pivar">Get-Variable</label>
 			<label index="tt_content.list_type_pi1">Page Comments</label>
 		</languageKey>
@@ -22,6 +23,7 @@
             <label index="tx_skpagecomments_comments.homepage">Homepage</label>
 			<label index="tx_skpagecomments_comments.comment">Kommentar</label>
 			<label index="tx_skpagecomments_comments.pageid">Seiten-ID</label>
+            <label index="tx_skpagecomments_comments.parentid">ParentID</label>
 			<label index="tx_skpagecomments_comments.pivar">GET-Variable</label>
 			<label index="tt_content.list_type_pi1">Page Comments</label>
 		</languageKey>

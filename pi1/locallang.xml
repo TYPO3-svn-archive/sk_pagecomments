@@ -26,6 +26,8 @@
             <label index="wrote">wrote at %s</label>
             <label index="showComment">show comments</label>
             <label index="new_comment">write a comment</label>
+            <label index="answer">answer</label>
+            <label index="legend_answer">answer to comment #%s</label>
             <label index="captcha">Please enter the following numbers / letters </label> 
             <label index="captcha_error">The entered Picture Chars are not correct !</label>
         </languageKey>
@@ -48,6 +50,8 @@
             <label index="wrote">schrieb am %s</label>
             <label index="showComment">zeige Kommentare</label>
             <label index="new_comment">einen Kommentar schreiben</label>
+            <label index="answer">antworten</label>
+            <label index="legend_answer">Auf Beitrag #%s antworten</label>  
             <label index="captcha">Bitte folgende Zeichen eingeben </label>
             <label index="captcha_error">Die eingetragenen Zeichen sind nicht korrekt!</label>  
         </languageKey>

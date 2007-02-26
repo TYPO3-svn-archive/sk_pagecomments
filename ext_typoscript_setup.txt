@@ -9,6 +9,8 @@ plugin.tx_skpagecomments_pi1 {
 		.sk-pagecomments-namedate {float:left;}
         .sk-pagecomments-emailhomepage{float:right;}
 		.sk-pagecomments-comment{background:#f1f1f1;padding:4px 28px;clear:both;}
+        .sk-pagecomments-answer{background:#f1f1f1;padding:1px 28px;text-align:right;}
+        
 		.tx-skpagecomments-pi1 form {margin:16px 0;width:480px;}
         .tx-skpagecomments-pi1 form fieldset {border:1px solid #eee;}
 		.tx-skpagecomments-pi1 form p.userinfos {text-align:center;padding:6px;}
@@ -44,12 +46,12 @@ plugin.tx_skpagecomments_pi1 {
     
 	commentEmail {
 		#stdWrap for Email in Comments
-        override = email
+        override = <img src="typo3conf/ext/sk_pagecomments/res/email.png" width="16" height="16" title="email" />
 	}
 	
     commentHomepage {
 		#stdWrap for Homepage in Comments
-        override = homepage
+        override = <img src="typo3conf/ext/sk_pagecomments/res/house.png" width="16" height="16" title="homepage" /> 
 	}
     
     #typolink of homepage
@@ -60,17 +62,27 @@ plugin.tx_skpagecomments_pi1 {
         parseFunc < tt_content.text.20.parseFunc
     }
 	
+    answerMargin = 16
+    allowAnswer = 1
+    answer {
+    	#stdWrap for Answerlink
+        override = <img src="typo3conf/ext/sk_pagecomments/res/answer.png" width="16" height="16" title="answer" />   
+    }
+	
+    
 	showComments = 1
 	showCommentsLink = 1
 	showForm = 1
-	showFormLink = 1
+	showFormLink = 0
 	showCount = 1
     
     dateFormat = d.m.Y H:i
     
 	sortOrder = DESC
 	sortOrderOnForm = ASC
-	maxRecords = 
+	
+    
+    maxRecords = 
 	commentOnlyRegistered = 
 	showRegisteredFields = 0
 	useCaptcha = 1
@@ -84,7 +96,7 @@ plugin.tx_skpagecomments_pi1 {
     
 	hideNewMsg = 0
 	minCharsName = 3
-	minCharsComment = 8
+	minCharsComment = 5
 	
 	useCookies = 14
     

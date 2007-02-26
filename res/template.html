@@ -27,15 +27,19 @@ TEMPLATE FOR PAGE COMMENTS
 #####  COMMENTS                          ######
 ###############################################
 <h1>Commentlisting</h1>
-<!--###COMMENTS### start -->                                  
+<!--###COMMENTS### start -->                                 
 <div class="sk-pagecomments-counter">###COMMENTCOUNT###</div>
-<!--###COMMENTLIST### start -->                                  
+<!--###COMMENTLIST### start -->
+<div style="margin-left:###MARGIN###px;">                                  
     <div class="sk-pagecomments-headline">
         <span class="sk-pagecomments-number">###NUMBER###</span>
         <span class="sk-pagecomments-namedate"> ###NAME### ###DATEPHRASE### </span>
+        <span class="sk-pagecomments-answer">###ANSWER###</span>  
         <span class="sk-pagecomments-emailhomepage"><!--###EMAILLINKWRAP###  -->###EMAIL###<!--###EMAILLINKWRAP###  --> <!--###HOMEPAGELINKWRAP###  -->###HOMEPAGE###<!--###HOMEPAGELINKWRAP###  --> </span>
+        
     </div>
     <div class="sk-pagecomments-comment">###COMMENT###</div>
+</div>
 <!--###COMMENTLIST### end -->
 
 <!--###COMMENTS### end -->
@@ -100,7 +104,7 @@ TEMPLATE FOR PAGE COMMENTS
 <label for="freecap">###SR_FREECAP_NOTICE###</label>
 ###SR_FREECAP_CANT_READ###
 <br />
-<input type="text" size="15" id="freecap" name="tx_skpagecomments_pi1[captcha_response]" title="###SR_FREECAP_NOTICE###" value="">
+<input type="text" size="15" id="freecap" name="tx_skpagecomments_pi1[captcha_response]" title="###SR_FREECAP_NOTICE###" value="" />
 ###SR_FREECAP_IMAGE###
 </p>
 <!--###CAPTCHA_INSERT###-->
