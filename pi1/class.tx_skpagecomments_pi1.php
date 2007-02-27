@@ -410,7 +410,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         $markerArray['###DATEPHRASE###']=sprintf($this->pi_getLL('wrote'),date($this->conf['dateFormat'],$temp['crdate']));
         $markerArray['###DATE###']=date($this->conf['dateFormat'],$temp['crdate']);
         $markerArray['###NAME###']=$this->cObj->stdWrap($temp['name'],$this->conf['commentName.']);
-        $markerArray['###NUMBER###']=$this->cObj->stdWrap($this->number[$temp['uid']],$this->conf['commentNumber.']); 
+        $markerArray['###NUMBER###']='<a name="comment'.$temp['uid'].'" title="ID: '.$temp['uid'].'">'.$this->cObj->stdWrap($this->number[$temp['uid']],$this->conf['commentNumber.']).'</a>'; 
         $markerArray['###MARGIN###']=$this->conf['answerMargin']*$level; 
         
         $this->conf['emailLink.']['parameter']=$temp['email'];

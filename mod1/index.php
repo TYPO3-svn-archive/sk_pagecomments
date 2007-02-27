@@ -253,6 +253,7 @@ class tx_skpagecomments_module1 extends t3lib_SCbase {
 		    $sqlOrder,
 		    $sqlLimit
 		    );
+        
 		$res = $GLOBALS['TYPO3_DB']->sql_query($query);
 		if ($res) {
 			$content.='<table cellpadding="1" cellspacing="1" class="bgColor4" width="100%">';
@@ -270,10 +271,10 @@ class tx_skpagecomments_module1 extends t3lib_SCbase {
                 }
                 $del='<a href="index.php?pagecomments[delete]='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/delete_record.gif','width="11" height="12"').' vspace="2" align="top" title="delete" alt="" /></a>';  
                     
-				$content.='<td valign="top"><a href="#" onclick="previewWin=window.open(\''.$BACK_PATH.'../index.php?id='.$row['pid'].($row['pivar']!=''?'&'.$row['pivar']:'').'\',\'newTYPO3frontendWindow\');previewWin.focus();"><img src="'.$pagepic.'" title="'.$page['title'].'" width="18" height="16" align="top" alt="" /></a>&nbsp;'.$row['pid'].'</td>';
+				$content.='<td valign="top"><a href="#" onclick="previewWin=window.open(\''.$BACK_PATH.'../index.php?id='.$row['pid'].($row['pivar']!=''?'&'.$row['pivar']:'').'#comment'.$row['uid'].'\',\'newTYPO3frontendWindow\');previewWin.focus();"><img src="'.$pagepic.'" title="'.$page['title'].'" width="18" height="16" align="top" alt="" /></a>&nbsp;'.$row['pid'].'</td>';
 				$content.='<td valign="top" style="color:blue;">'.t3lib_BEfunc::dateTimeAge($row['crdate'],1).'</td>';
 				$content.='<td valign="top" style="color:green;">'.$row['name'].'</td>';
-				$content.='<td valign="top">'.substr($row['comment'],0,60).'...'.'</td>';
+				$content.='<td valign="top">'.htmlspecialchars(substr($row['comment'],0,60)).'...'.'</td>';
 				$content.='<td valign="top">'.$this->getItemFromRecord('tx_skpagecomments_comments',$row).'</td>';
 				$content.='<td valign="top">'.$hide.'</td>';
 				$content.='<td valign="top">'.$del.'</td>';
