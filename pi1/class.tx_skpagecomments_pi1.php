@@ -212,6 +212,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     }
                     //insert comment
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
+                    $insertId=$GLOBALS['TYPO3_DB']->sql_insert_id();
                     if($this->conf['emailNewMessage']==1 && $this->conf['emailAddress'] && $this->conf['emailFrom']) {
                          $link='http://'.t3lib_div::getIndpEnv('HTTP_HOST').'/'.$this->pi_getPageLink($this->pageid);
                          if($this->conf['bindToGETvar']) {
@@ -225,7 +226,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                                 '###USER###'=>$insertArr['name'],
                                 '###DATE###'=>date($this->conf['dateFormat'],$insertArr['crdate']),
                                 '###COMMENT###'=>$insertArr['comment'],
-                                '###PAGELINK###'=>$link,
+                                '###PAGELINK###'=>$link.'#comment'.$insertId,
                                 '###PAGETITLE###'=>$GLOBALS['TSFE']->page['title']
                             ),
                             array(),
