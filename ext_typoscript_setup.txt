@@ -6,10 +6,12 @@ plugin.tx_skpagecomments_pi1 {
 		.sk-pagecomments-success {color:blue;font-weight:bold;}
 		.sk-pagecomments-counter {color:#600;text-align:right;text-decoration:underline;margin-bottom:12px;}
         .sk-pagecomments-headline {border-bottom:1px solid #000;font-weight:bold;background:#d1d1d1;padding-left:6px;height:20px;}
+        .sk-pagecomments-answerheadline {border-bottom:1px solid #000;font-weight:bold;background:#f7f3ef;padding-left:6px;height:20px;}
 		.sk-pagecomments-namedate {float:left;}
         .sk-pagecomments-emailhomepage{float:right;}
-		.sk-pagecomments-comment{background:#f1f1f1;padding:4px 28px;clear:both;}
-        .sk-pagecomments-answer{background:#f1f1f1;padding:1px 28px;text-align:right;}
+		.sk-pagecomments-answer{float:right;padding:0 4px 0 12px;}   
+        .sk-pagecomments-comment{background:#f1f1f1;padding:4px 28px;clear:both;}
+        
         
 		.tx-skpagecomments-pi1 form {margin:16px 0;width:480px;}
         .tx-skpagecomments-pi1 form fieldset {border:1px solid #eee;}
@@ -47,11 +49,13 @@ plugin.tx_skpagecomments_pi1 {
 	commentEmail {
 		#stdWrap for Email in Comments
         override = <img src="typo3conf/ext/sk_pagecomments/res/email.png" width="16" height="16" title="email" />
+        required=1
 	}
 	
     commentHomepage {
 		#stdWrap for Homepage in Comments
         override = <img src="typo3conf/ext/sk_pagecomments/res/house.png" width="16" height="16" title="homepage" /> 
+        required=1
 	}
     
     #typolink of homepage

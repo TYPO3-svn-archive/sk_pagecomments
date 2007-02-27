@@ -30,7 +30,6 @@ TEMPLATE FOR PAGE COMMENTS
 <!--###COMMENTS### start -->                                 
 <div class="sk-pagecomments-counter">###COMMENTCOUNT###</div>
 <!--###COMMENTLIST### start -->
-<div style="margin-left:###MARGIN###px;">                                  
     <div class="sk-pagecomments-headline">
         <span class="sk-pagecomments-number">###NUMBER###</span>
         <span class="sk-pagecomments-namedate"> ###NAME### ###DATEPHRASE### </span>
@@ -39,9 +38,19 @@ TEMPLATE FOR PAGE COMMENTS
         
     </div>
     <div class="sk-pagecomments-comment">###COMMENT###</div>
-</div>
 <!--###COMMENTLIST### end -->
-
+<!--###ANSWERLIST### start -->
+<div style="margin-left:###MARGIN###px;">                                  
+    <div class="sk-pagecomments-answerheadline">
+        <span class="sk-pagecomments-number">###NUMBER###</span>
+        <span class="sk-pagecomments-namedate"> ###NAME### ###DATEPHRASE### </span>
+        <span class="sk-pagecomments-answer">###ANSWER###</span>  
+        <span class="sk-pagecomments-emailhomepage"><!--###EMAILLINKWRAP###  -->###EMAIL###<!--###EMAILLINKWRAP###  --> <!--###HOMEPAGELINKWRAP###  -->###HOMEPAGE###<!--###HOMEPAGELINKWRAP###  --> </span>
+        
+    </div>
+    <div class="sk-pagecomments-comment">###COMMENT###</div>
+</div>
+<!--###ANSWERLIST### end -->
 <!--###COMMENTS### end -->
 
 
