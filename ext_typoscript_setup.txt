@@ -13,6 +13,11 @@ plugin.tx_skpagecomments_pi1 {
         .sk-pagecomments-comment{background:#f1f1f1;padding:4px 28px;clear:both;}
         
         
+        .sk-pagecomments-teaser {margin-top:-40px}
+        .sk-pagecomments-teaser h4 {background:#eee;font-size:85%;margin:0;color:green;padding-left:4px;}
+        .sk-pagecomments-teaser h4 span{padding-right:4px}
+        .sk-pagecomments-teaser p {margin:0;font-size:90%}
+
 		.tx-skpagecomments-pi1 form {margin:16px 0;width:480px;}
         .tx-skpagecomments-pi1 form fieldset {border:1px solid #eee;}
 		.tx-skpagecomments-pi1 form p.userinfos {text-align:center;padding:6px;}
@@ -32,6 +37,8 @@ plugin.tx_skpagecomments_pi1 {
         .tx-skpagecomments-pi1 form input#homepage:focus,
 		.tx-skpagecomments-pi1 form textarea:focus {background:#FFC480;} 
 		.tx-skpagecomments-pi1 form input#skcommentssubmit {background:#FFA540;color:#804400;float:right;margin:8px 20px;}
+        
+        
 	)
 	
 	templateFile=EXT:sk_pagecomments/res/template.html
@@ -106,4 +113,23 @@ plugin.tx_skpagecomments_pi1 {
     
     
 	
+}
+
+#Object for Teaser
+lib.commentTeaser < plugin.tx_skpagecomments_pi1
+lib.commentTeaser {
+	teaser = 1
+	teaser {
+		entries = 5
+	}
+	comment {
+    		#stdWrap for Comments
+        	stripHtml=1
+        	crop = 35|...|1
+    	}
+    	dateFormat = d.m.Y
+    	
+    	goto {
+    		override = <img src="typo3conf/ext/sk_pagecomments/res/link.png" width="16" height="16" title="gehe zu Kommentar" /> 
+    	}
 }
