@@ -95,6 +95,10 @@ plugin.tx_skpagecomments_pi1 {
     
     maxRecords = 
 	commentOnlyRegistered = 
+	registerPid = 0
+	registerInfo {
+		#stdWrap for RegisterInfo
+	}
 	showRegisteredFields = 0
 	useCaptcha = 1
 	useFreecap = 1
@@ -122,6 +126,12 @@ lib.commentTeaser {
 	teaser {
 		entries = 5
 	}
+	
+	pageLink {
+		stripHtml=1
+        crop = 5|...|1
+	}
+	
 	comment {
     		#stdWrap for Comments
         	stripHtml=1

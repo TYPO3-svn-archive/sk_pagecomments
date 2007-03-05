@@ -15,6 +15,7 @@
 			<label index="tx_skpagecomments_comments.parentid">ParentID</label>
 			<label index="tx_skpagecomments_comments.pivar">Get-Variable</label>
 			<label index="tt_content.list_type_pi1">Page Comments</label>
+			<label index="tx_skpagecomments_comments.feuser_uid">Frontend User</label>
 		</languageKey>
         <languageKey index="de" type="array">
 			<label index="tx_skpagecomments_comments">Kommentare</label>
@@ -26,6 +27,7 @@
             <label index="tx_skpagecomments_comments.parentid">ParentID</label>
 			<label index="tx_skpagecomments_comments.pivar">GET-Variable</label>
 			<label index="tt_content.list_type_pi1">Page Comments</label>
+			<label index="tx_skpagecomments_comments.feuser_uid">Website Benutzer</label>
 		</languageKey>
 	</data>
 </T3locallang>

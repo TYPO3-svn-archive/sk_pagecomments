@@ -169,9 +169,21 @@ $TCA["tx_skpagecomments_comments"] = Array (
 				"size" => "30",
 			)
 		),
+		'feuser_uid' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:sk_pagecomments/locallang_db.xml:tx_skpagecomments_comments.feuser_uid',
+			'config' => Array (
+				'type' => 'group',
+				'internal_type' => 'db',
+				'allowed' => 'fe_users',
+				'size' => 1,
+				'minitems' => 0,
+				'maxitems' => 1,
+			)
+		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden, parentId;;1, name, email, homepage, comment, pageid, pivar")
+		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden, parentId;;1, name, email, homepage, comment, pageid, pivar, feuser_uid")
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "starttime, endtime, fe_group")

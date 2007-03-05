@@ -32,7 +32,7 @@ $TCA["tx_skpagecomments_comments"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_skpagecomments_comments.gif",
 	),
 	"feInterface" => Array (
-		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, starttime, endtime, fe_group, name, email, comment, pageid, allowed, pivar",
+		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, starttime, endtime, fe_group, name, email, comment, pageid, allowed, pivar, feuser_uid",
 	)
 );
 
