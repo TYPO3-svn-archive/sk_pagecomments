@@ -41,6 +41,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
     var $subpart;
     var $number;
     var $pageid;
+    var $URLParamsArray;
     
 	/**
 	 * Extension for adding Pagecomments to Pages
@@ -100,7 +101,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         
         	
 		//Conf
-        $thisURLParamsArray=$this->cleanUrlPars($_GET);   
+        $this->URLParamsArray=$this->cleanUrlPars($_GET);   
         
         #t3lib_div::debug($this->conf);
         
@@ -147,7 +148,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
              if($this->conf['bindToGETvar']) {          
                  $lconf=array_merge($this->conf['formLink.'],array(
                     'parameter' => $this->pageid,
-                    'additionalParams' => $thisURLParamsArray.'&'.$this->prefixId.'[showComments]=1',
+                    'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[showComments]=1',
                     'section' => ($this->conf['useSectionFormLink'] ? 'CommentStart' : ''),
                 ));
                $l=$this->cObj->typolink('|',$lconf);   
@@ -322,7 +323,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     if($this->conf['bindToGETvar']) {          
                          $lconf=array_merge($this->conf['formLink.'],array(
                             'parameter' => $this->pageid,
-                            'additionalParams' => $thisURLParamsArray.'&'.$this->prefixId.'[showComments]=1&'.$this->prefixId.'[showForm]=1',
+                            'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[showComments]=1&'.$this->prefixId.'[showForm]=1',
                             'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : ''),
                         ));
                         
@@ -436,10 +437,11 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
     
     function renderComment($temp,$level=0,$list='') {
         if($level==-1) {
+            #t3lib_div::debug($temp['pivar']);
             $lconf=array_merge($this->conf['answerLink.'],array(
                 'parameter' => $temp['pageid'],
                 'section' => 'comment'.$temp['uid'],
-                'additionalParams' => $temp['pivars'] ? '&'.$temp['pivars'] : '',
+                'additionalParams' => $temp['pivar'] ? '&'.$temp['pivar'] : '',
             ));
             $l=$this->cObj->typolink('|',$lconf);
             $linkWrapArray['###LINK###']=explode('|',$l);   
@@ -478,10 +480,10 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
             if($this->conf['bindToGETvar']) {          
                  $lconf=array_merge($this->conf['answerLink.'],array(
                     'parameter' => $this->pageid,
-                    'additionalParams' => $thisURLParamsArray.'&'.$this->prefixId.'[answer]='.$temp['uid'],
+                    'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[answer]='.$temp['uid'],
                     'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : ''),
                 ));
-               $l=$this->cObj->typolink('|',$lconf);   
+               $l=$this->cObj->typolink($this->cObj->stdWrap($this->pi_getLL('answer'),$this->conf['answer.']),$lconf); 
             } else {
                 $lconf=array_merge($this->conf['answerLink.'],array(
                     'parameter' => $this->pageid,
