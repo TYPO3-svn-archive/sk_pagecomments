@@ -1,4 +1,5 @@
 <?php
+if(!defined(PATH_tslib)) define('PATH_tslib', PATH_site.'typo3/sysext/cms/tslib/'); 
 require_once(PATH_tslib."class.tslib_pibase.php"); 
 
 class tx_skpagecomments_markerhooks extends tslib_pibase {

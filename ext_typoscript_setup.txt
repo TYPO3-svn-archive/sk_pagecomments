@@ -73,8 +73,8 @@ plugin.tx_skpagecomments_pi1 {
         parseFunc < tt_content.text.20.parseFunc
     }
 	
-    answerMargin = 16
     allowAnswer = 1
+    answerMargin = 16   
     answer {
     	#stdWrap for Answerlink
         override = <img src="typo3conf/ext/sk_pagecomments/res/answer.png" width="16" height="16" title="answer" />   
@@ -105,11 +105,14 @@ plugin.tx_skpagecomments_pi1 {
 	
     useSectionFormLink=1
     
-	emailNewMessage = 1
-	emailAddress = xxx@xxx.com
-	emailFrom = pagecomments@xxx.com 
+	emailNewMessage = 0
+	emailAddress = you@yourdomain.com
+	emailFrom = pagecomments@yourdomain.com 
     
 	hideNewMsg = 0
+    hideMsg {
+        wrap = <p><i>|</i></p>
+    }
 	minCharsName = 3
 	minCharsComment = 5
 	
@@ -140,6 +143,6 @@ lib.commentTeaser {
     	dateFormat = d.m.Y
     	
     	goto {
-    		override = <img src="typo3conf/ext/sk_pagecomments/res/link.png" width="16" height="16" title="gehe zu Kommentar" /> 
+    		override = <img src="typo3conf/ext/sk_pagecomments/res/link.png" width="16" height="16" title="go to comment" /> 
     	}
 }

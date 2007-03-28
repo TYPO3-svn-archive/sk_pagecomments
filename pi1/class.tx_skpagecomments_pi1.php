@@ -170,7 +170,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			
 			//Wurde gepostet ?
 			if (isset($this->piVars['submit'])) {
-                
+                $ip_address=t3lib_div::getIndpEnv('REMOTE_ADDR');
+        
                 $insertArr['parentId']= intval($this->piVars['answerid']);
                 
                 $insertArr['name']=htmlspecialchars($this->piVars['name']); 
@@ -245,7 +246,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                             $this->subpart['mail'],
                             array(
                                 '###USER###'=>$insertArr['name'],
-                                
+                                '###IP###' => $ip_address,
                                 '###DATE###'=>date($this->conf['dateFormat'],$insertArr['crdate']),
                                 '###COMMENT###'=>$insertArr['comment'],
                                 '###PAGELINK###'=>$link.'#comment'.$insertId,
@@ -265,6 +266,11 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			
 			//show comments
             $content.='<a name="CommentStart"></a>';
+            if($this->piVars['success'] && $this->conf['hideNewMsg']==1)  {
+                $markerArray['###HIDEMSG###']=$this->cObj->stdWrap($this->pi_getLL('hideMsg'),$this->conf['hideMsg.']);
+            } else {
+                $markerArray['###HIDEMSG###']='';
+            }
             
             $number=array();
             $i=1;         
