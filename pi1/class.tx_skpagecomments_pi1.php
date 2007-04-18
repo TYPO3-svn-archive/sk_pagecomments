@@ -265,7 +265,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 				
 			
 			//show comments
-            $content.='<a name="CommentStart"></a>';
+            $content.='<a id="CommentStart"></a>';
             if($this->piVars['success'] && $this->conf['hideNewMsg']==1)  {
                 $markerArray['###HIDEMSG###']=$this->cObj->stdWrap($this->pi_getLL('hideMsg'),$this->conf['hideMsg.']);
             } else {
@@ -307,9 +307,9 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	            }
                 
                 $subpartArray['###COMMENTLIST###']=$contentList;
-                $subpartArray['###ANSWERLIST###']='';
+                $subpartArray['###ANSWERLIST###']='';        
                                                                    
-                if($this->piVars['success']) $content.='<a name="CommentForm"></a>';
+                if($this->piVars['success']) $content.='<a id="CommentForm"></a>';
                 $content.=$this->cObj->substituteMarkerArrayCached($this->subpart['comments'],$markerArray,$subpartArray,array());  
                 $markerArray=array();       
                     
@@ -431,7 +431,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                              }
                         } else $subpartArray['###FORM_VALUES_USER_LOGGED_IN###']='';
                        
-                        $form.=$this->cObj->substituteMarkerArrayCached($this->subpart['form'],$markerArray,$subpartArray,array()).'<a name="CommentForm"></a>'; 
+                        $form.=$this->cObj->substituteMarkerArrayCached($this->subpart['form'],$markerArray,$subpartArray,array()).'<a id="CommentForm"></a>'; 
                         unset($this->piVars['answer']);
                     }
                 }
@@ -461,7 +461,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
        
         $markerArray['###DATE###']=date($this->conf['dateFormat'],$temp['crdate']);
         $markerArray['###NAME###']=$this->cObj->stdWrap($temp['name'],$this->conf['commentName.']);
-        $markerArray['###NUMBER###']='<a name="comment'.$temp['uid'].'" title="ID: '.$temp['uid'].'">'.$this->cObj->stdWrap($this->number[$temp['uid']],$this->conf['commentNumber.']).'</a>'; 
+        $markerArray['###NUMBER###']='<a id="comment'.$temp['uid'].'" title="ID: '.$temp['uid'].'">'.$this->cObj->stdWrap($this->number[$temp['uid']],$this->conf['commentNumber.']).'</a>'; 
         $markerArray['###MARGIN###']=$this->conf['answerMargin']*$level; 
         
         if ($this->conf['pageLink'] = 1) {

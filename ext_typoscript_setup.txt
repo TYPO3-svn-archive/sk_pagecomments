@@ -72,7 +72,7 @@ plugin.tx_skpagecomments_pi1 {
     	#stdWrap for Comments
         parseFunc < tt_content.text.20.parseFunc
     }
-	
+	  
     allowAnswer = 1
     answerMargin = 16   
     answer {
@@ -80,6 +80,9 @@ plugin.tx_skpagecomments_pi1 {
         override = <img src="typo3conf/ext/sk_pagecomments/res/answer.png" width="16" height="16" title="answer" />   
     }
 	
+    answerLink {
+        #typolink settings
+    }
     
 	showComments = 1
 	showCommentsLink = 1
