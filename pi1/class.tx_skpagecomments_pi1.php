@@ -407,7 +407,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                         
                         #captcha
                         if (t3lib_extMgm::isLoaded('captcha') && $this->conf['useCaptcha'])	{
-	                        $markerArray['###CAPTCHAINPUT###'] = '<input type="text" id="captcha" size=10 name="'.$this->prefixId.'[captchaResponse]" value="" />';
+	                        $markerArray['###CAPTCHAINPUT###'] = '<input type="text" id="captcha" size="10" name="'.$this->prefixId.'[captchaResponse]" value="" />';
                             $markerArray['###CAPTCHAPICTURE###'] = '<img src="'.t3lib_extMgm::siteRelPath('captcha').'captcha/captcha.php" alt="" />';
                         } else {
 	                        $subpartArray['###CAPTCHA###'] = '';
@@ -581,23 +581,23 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 					</script>
 				';				
     		$smile='<div id="skpagecomments-smileys">
-			<a class="noul" href="javascript:dosmilie(\':)\')"><img src="'.$res.'icon_smile.gif" alt="smile" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\';)\')"><img src="'.$res.'icon_wink.gif" alt="zwinker" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':biggrin:\')"><img src="'.$res.'icon_biggrin.gif" alt="Big Grins" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':confused:\')"><img src="'.$res.'icon_confused.gif" alt="Confused" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':cool:\')"><img src="'.$res.'icon_cool.gif" alt="Cool" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':cry:\')"><img src="'.$res.'icon_cry.gif" alt="Cry" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':eek:\')"><img src="'.$res.'icon_eek.gif" alt="Eek" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':evil:\')"><img src="'.$res.'icon_evil.gif" alt="Evil" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':frown:\')"><img src="'.$res.'icon_frown.gif" alt="Frown" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':mad:\')"><img src="'.$res.'icon_mad.gif" alt="Mad" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':mrgreen:\')"><img src="'.$res.'icon_mrgreen.gif" alt="Mr. Green" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':neutral:\')"><img src="'.$res.'icon_neutral.gif" alt="Neutral" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':razz:\')"><img src="'.$res.'icon_razz.gif" alt="Razz" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':redface:\')"><img src="'.$res.'icon_redface.gif" alt="Redface" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':rolleyes:\')"><img src="'.$res.'icon_rolleyes.gif" alt="Rolleyes" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':sad:\')"><img src="'.$res.'icon_sad.gif" alt="Sad" border="0" /></a>
-			<a class="noul" href="javascript:dosmilie(\':surprised:\')"><img src="'.$res.'icon_surprised.gif" alt="Surprised" border="0" /></a>
+			<a class="noul" href="javascript:dosmilie(\':)\')"><img src="'.$res.'icon_smile.gif" alt="smile"  /></a>
+			<a class="noul" href="javascript:dosmilie(\';)\')"><img src="'.$res.'icon_wink.gif" alt="zwinker"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':biggrin:\')"><img src="'.$res.'icon_biggrin.gif" alt="Big Grins"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':confused:\')"><img src="'.$res.'icon_confused.gif" alt="Confused"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':cool:\')"><img src="'.$res.'icon_cool.gif" alt="Cool"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':cry:\')"><img src="'.$res.'icon_cry.gif" alt="Cry"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':eek:\')"><img src="'.$res.'icon_eek.gif" alt="Eek"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':evil:\')"><img src="'.$res.'icon_evil.gif" alt="Evil"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':frown:\')"><img src="'.$res.'icon_frown.gif" alt="Frown"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':mad:\')"><img src="'.$res.'icon_mad.gif" alt="Mad"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':mrgreen:\')"><img src="'.$res.'icon_mrgreen.gif" alt="Mr. Green"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':neutral:\')"><img src="'.$res.'icon_neutral.gif" alt="Neutral"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':razz:\')"><img src="'.$res.'icon_razz.gif" alt="Razz"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':redface:\')"><img src="'.$res.'icon_redface.gif" alt="Redface"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':rolleyes:\')"><img src="'.$res.'icon_rolleyes.gif" alt="Rolleyes"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':sad:\')"><img src="'.$res.'icon_sad.gif" alt="Sad"  /></a>
+			<a class="noul" href="javascript:dosmilie(\':surprised:\')"><img src="'.$res.'icon_surprised.gif" alt="Surprised"  /></a>
 			</div>';
     	}
         return $smile;
@@ -607,24 +607,24 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
     function displayComment($comment) {
     	if (!isset($this->conf['blind.']['smileys']) || (isset($this->conf['blind.']['smileys']) && $this->conf['blind.']['smileys'] != 1)) {
     		$res=t3lib_extMgm::siteRelPath('sk_pagecomments').'res/smileys/';   
-    		$comment = str_replace(":)",'<img src="'.$res.'icon_smile.gif" alt="smile" class="smilie" border="0" />',$comment);
-    		$comment = str_replace(";)",'<img src="'.$res.'icon_wink.gif" alt="zwinker" class="smilie" border="0" />',$comment);
-    		$comment = str_replace(":D",'<img src="'.$res.'icon_biggrin.gif" alt="big green" class="smilie" border="0" />',$comment);
-    		$comment = ereg_replace(":biggrin:", '<img src="'.$res.'icon_biggrin.gif" alt="Big Grins" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":confused:", '<img src="'.$res.'icon_confused.gif" alt="Confused" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":cool:", '<img src="'.$res.'icon_cool.gif" alt="Cool" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":cry:", '<img src="'.$res.'icon_cry.gif" alt="Cry" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":eek:", '<img src="'.$res.'icon_eek.gif" alt="Eek" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":evil:", '<img src="'.$res.'icon_evil.gif" alt="Evil" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":frown:", '<img src="'.$res.'icon_frown.gif" alt="Frown" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":mad:", '<img src="'.$res.'icon_mad.gif" alt="Mad" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":mrgreen:", '<img src="'.$res.'icon_mrgreen.gif" alt="Mr. Green" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":neutral:", '<img src="'.$res.'icon_neutral.gif" alt="Neutral" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":razz:", '<img src="'.$res.'icon_razz.gif" alt="Razz" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":redface:", '<img src="'.$res.'icon_redface.gif" alt="Redface" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":rolleyes:", '<img src="'.$res.'icon_rolleyes.gif" alt="Rolleyes" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":sad:", '<img src="'.$res.'icon_sad.gif" alt="Sad" class="smilie" border="0" />', $comment);
-    		$comment = ereg_replace(":surprised:", '<img src="'.$res.'icon_surprised.gif" alt="Surprised" class="smilie" border="0" />', $comment);
+    		$comment = str_replace(":)",'<img src="'.$res.'icon_smile.gif" alt="smile" class="smilie"  />',$comment);
+    		$comment = str_replace(";)",'<img src="'.$res.'icon_wink.gif" alt="zwinker" class="smilie"  />',$comment);
+    		$comment = str_replace(":D",'<img src="'.$res.'icon_biggrin.gif" alt="big green" class="smilie"  />',$comment);
+    		$comment = ereg_replace(":biggrin:", '<img src="'.$res.'icon_biggrin.gif" alt="Big Grins" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":confused:", '<img src="'.$res.'icon_confused.gif" alt="Confused" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":cool:", '<img src="'.$res.'icon_cool.gif" alt="Cool" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":cry:", '<img src="'.$res.'icon_cry.gif" alt="Cry" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":eek:", '<img src="'.$res.'icon_eek.gif" alt="Eek" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":evil:", '<img src="'.$res.'icon_evil.gif" alt="Evil" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":frown:", '<img src="'.$res.'icon_frown.gif" alt="Frown" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":mad:", '<img src="'.$res.'icon_mad.gif" alt="Mad" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":mrgreen:", '<img src="'.$res.'icon_mrgreen.gif" alt="Mr. Green" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":neutral:", '<img src="'.$res.'icon_neutral.gif" alt="Neutral" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":razz:", '<img src="'.$res.'icon_razz.gif" alt="Razz" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":redface:", '<img src="'.$res.'icon_redface.gif" alt="Redface" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":rolleyes:", '<img src="'.$res.'icon_rolleyes.gif" alt="Rolleyes" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":sad:", '<img src="'.$res.'icon_sad.gif" alt="Sad" class="smilie"  />', $comment);
+    		$comment = ereg_replace(":surprised:", '<img src="'.$res.'icon_surprised.gif" alt="Surprised" class="smilie"  />', $comment);
     	}
 
     	$comment=$this->disableXSS($comment);

@@ -38,7 +38,7 @@ plugin.tx_skpagecomments_pi1 {
 		.tx-skpagecomments-pi1 form textarea:focus {background:#FFC480;} 
 		.tx-skpagecomments-pi1 form input#skcommentssubmit {background:#FFA540;color:#804400;float:right;margin:8px 20px;}
         
-        
+        .tx-skpagecomments-pi1 img {border:0px}
 	)
 	
 	templateFile=EXT:sk_pagecomments/res/template.html
@@ -55,13 +55,13 @@ plugin.tx_skpagecomments_pi1 {
     
 	commentEmail {
 		#stdWrap for Email in Comments
-        override = <img src="typo3conf/ext/sk_pagecomments/res/email.png" width="16" height="16" title="email" />
+        override = <img src="typo3conf/ext/sk_pagecomments/res/email.png" width="16" height="16" alt="email" title="email" />
         required=1
 	}
 	
     commentHomepage {
 		#stdWrap for Homepage in Comments
-        override = <img src="typo3conf/ext/sk_pagecomments/res/house.png" width="16" height="16" title="homepage" /> 
+        override = <img src="typo3conf/ext/sk_pagecomments/res/house.png" width="16" height="16" alt="homepage" title="homepage" /> 
         required=1
 	}
     
@@ -77,7 +77,7 @@ plugin.tx_skpagecomments_pi1 {
     answerMargin = 16   
     answer {
     	#stdWrap for Answerlink
-        override = <img src="typo3conf/ext/sk_pagecomments/res/answer.png" width="16" height="16" title="answer" />   
+        override = <img src="typo3conf/ext/sk_pagecomments/res/answer.png" width="16" height="16" alt="answer" title="answer" />   
     }
 	
     answerLink {
@@ -86,11 +86,11 @@ plugin.tx_skpagecomments_pi1 {
     
     admin.hide {
     	#stdWrap for admin hide link
-        override = <img src="typo3conf/ext/sk_pagecomments/res/hide.gif" width="16" height="16" title="hide" />   
+        override = <img src="typo3conf/ext/sk_pagecomments/res/hide.gif" width="16" height="16" alt="hide" title="hide" />   
     }
     admin.unhide {
     	#stdWrap for admin unhide link
-        override = <img src="typo3conf/ext/sk_pagecomments/res/unhide.gif" width="16" height="16" title="unhide" />   
+        override = <img src="typo3conf/ext/sk_pagecomments/res/unhide.gif" width="16" height="16" alt="unhide" title="unhide" />   
     }
     
 	showComments = 1
@@ -166,6 +166,6 @@ lib.commentTeaser {
     	dateFormat = d.m.Y
     	
     	goto {
-    		override = <img src="typo3conf/ext/sk_pagecomments/res/link.png" width="16" height="16" title="go to comment" /> 
+    		override = <img src="typo3conf/ext/sk_pagecomments/res/link.png" width="16" height="16" alt="go to commen" title="go to comment" /> 
     	}
 }
