@@ -32,7 +32,7 @@ TEMPLATE FOR PAGE COMMENTS
 <div class="sk-pagecomments-counter">###COMMENTCOUNT###</div>
 <!--###COMMENTLIST### start -->
     <div class="sk-pagecomments-headline">
-        <span class="sk-pagecomments-number">###NUMBER###</span>
+        <span class="sk-pagecomments-number">###ADMINHIDE### ###NUMBER###</span>
         <span class="sk-pagecomments-namedate"> ###NAME### ###DATEPHRASE### </span>
         <span class="sk-pagecomments-answer">###ANSWER###</span>  
         <span class="sk-pagecomments-emailhomepage"><!--###EMAILLINKWRAP###  -->###EMAIL###<!--###EMAILLINKWRAP###  --> <!--###HOMEPAGELINKWRAP###  -->###HOMEPAGE###<!--###HOMEPAGELINKWRAP###  --> </span>
@@ -43,7 +43,7 @@ TEMPLATE FOR PAGE COMMENTS
 <!--###ANSWERLIST### start -->
 <div style="margin-left:###MARGIN###px;">                                  
     <div class="sk-pagecomments-answerheadline">
-        <span class="sk-pagecomments-number">###NUMBER###</span>
+        <span class="sk-pagecomments-number">###ADMINHIDE### ###NUMBER###</span>
         <span class="sk-pagecomments-namedate"> ###NAME### ###DATEPHRASE### </span>
         <span class="sk-pagecomments-answer">###ANSWER###</span>  
         <span class="sk-pagecomments-emailhomepage"><!--###EMAILLINKWRAP###  -->###EMAIL###<!--###EMAILLINKWRAP###  --> <!--###HOMEPAGELINKWRAP###  -->###HOMEPAGE###<!--###HOMEPAGELINKWRAP###  --> </span>
@@ -95,12 +95,12 @@ TEMPLATE FOR PAGE COMMENTS
 </p>
 <!--###FORM_VALUES_USER_LOGGED_IN### end -->
 
-<p>
+<div>
   <label for="comment">###L_COMMENT###</label>
   <div class="smileytext">###SMILEYS###
   <textarea id="comment" name="###COMMENT###" cols="20" rows="5" wrap="virtual">###V_COMMENT###</textarea>
   </div>
-</p>
+</div>
 
 <!--###CAPTCHA### start -->
 <p>
