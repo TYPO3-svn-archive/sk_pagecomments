@@ -30,6 +30,11 @@ TEMPLATE FOR PAGE COMMENTS
 <!--###COMMENTS### start --> 
 ###HIDEMSG###
 <div class="sk-pagecomments-counter">###COMMENTCOUNT###</div>
+<!-- ###PAGEBROWSER### begin -->
+<p class="pagebrowser">
+###PAGEOF###  ###PAGES###  ###PREVIOUS### ###NEXT###
+</p>
+<!-- ###PAGEBROWSER### end -->
 <!--###COMMENTLIST### start -->
     <div class="sk-pagecomments-headline">
         <span class="sk-pagecomments-number">###ADMINHIDE### ###NUMBER###</span>
@@ -118,9 +123,11 @@ TEMPLATE FOR PAGE COMMENTS
 ###SR_FREECAP_IMAGE###
 </p>
 <!--###CAPTCHA_INSERT###-->
-
+<br />
+###MAILONANSWER### 
+###MAILONCOMMENT###
 <p>
-    <label for="skcommentssubmit">&nbsp;</label>
+    <label for="skcommentssubmit">&nbsp;</label> 
     <input type="submit" id="skcommentssubmit" name="###SUBMIT###" value="###V_SUBMIT###" />
 </p>
 
@@ -166,12 +173,25 @@ TEMPLATE FOR PAGE COMMENTS
 ###############################################
 <h1>MAIL</h1>
 first line is subject
+mail to admin:
 <!--###MAILING### start --> 
 New Comment
 ###USER### has written at ###DATE### on Page "###PAGETITLE###" following comment:
 ==================================================================================================
 ###COMMENT###
 IP-Address: ###IP###
+email: ###EMAIL###
+homepage: ###HOMEPAGE###
 ==================================================================================================
 ###PAGELINK###
 <!--###MAILING### end -->
+
+mail to user:
+<!--###USERMAILING### start --> 
+New Comment
+###USER### has written at ###DATE### on Page "###PAGETITLE###" following comment:
+==================================================================================================
+###COMMENT###
+==================================================================================================
+###PAGELINK###
+<!--###USERMAILING### end -->

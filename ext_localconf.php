@@ -19,4 +19,8 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tt_news']['extraItemMarkerHook'][]='tx_s
 #sk_simplegallery hook
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sk_simplegallery']['extraSingleMarkerHook'][]='tx_skpagecomments_markerhooks';  
 
+#linkhandler
+$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_content.php']['typolinkLinkHandler']['pagecomment'] = 'EXT:sk_pagecomments/hooks/class.tx_skpagecomments_markerhooks.php:tx_pc_linkHandler';
+
+
 ?>

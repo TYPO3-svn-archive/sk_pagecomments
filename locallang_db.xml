@@ -13,7 +13,9 @@
 			<label index="tx_skpagecomments_comments.comment">Comment</label>
             <label index="tx_skpagecomments_comments.pageid">PageID</label>
 			<label index="tx_skpagecomments_comments.parentid">ParentID</label>
-			<label index="tx_skpagecomments_comments.pivar">Get-Variable</label>
+            <label index="tx_skpagecomments_comments.pivar">Get-Variable</label>
+            <label index="tx_skpagecomments_comments.mailonanswer">mail on answer</label>
+			<label index="tx_skpagecomments_comments.mailoncomment">mail on new comment</label>
 			<label index="tt_content.list_type_pi1">Page Comments</label>
 			<label index="tx_skpagecomments_comments.feuser_uid">Frontend User</label>
 		</languageKey>
@@ -26,6 +28,8 @@
 			<label index="tx_skpagecomments_comments.pageid">Seiten-ID</label>
             <label index="tx_skpagecomments_comments.parentid">ParentID</label>
 			<label index="tx_skpagecomments_comments.pivar">GET-Variable</label>
+            <label index="tx_skpagecomments_comments.mailonanswer">Email bei Antwort</label>
+			<label index="tx_skpagecomments_comments.mailoncomment">Email bei neuem Kommentar</label>
 			<label index="tt_content.list_type_pi1">Page Comments</label>
 			<label index="tx_skpagecomments_comments.feuser_uid">Website Benutzer</label>
 		</languageKey>

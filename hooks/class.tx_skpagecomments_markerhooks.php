@@ -7,6 +7,11 @@ class tx_skpagecomments_markerhooks extends tslib_pibase {
   var $scriptRelPath = 'pi1/class.tx_skpagecomments_pi1.php';
   var $extKey = 'sk_pagecomments';
   
+  //own hooks
+  function addWhereProcessor($addWhere,$lookForValue,$parent) { 
+        //the addidional $addWhere can be manipulated her
+        //   
+  }
   //tt_news hook
   function extraItemMarkerProcessor($markerArray,$row,$lConf,$parentObject) { 
         $this->pi_loadLL();  
@@ -29,4 +34,25 @@ class tx_skpagecomments_markerhooks extends tslib_pibase {
         return  $markerArray;
   }
 }
+
+class tx_pc_linkHandler {
+	function main($linktxt, $conf, $linkHandlerKeyword, $linkHandlerValue, $link_param, & $pObj) {
+		#t3lib_div::debug($conf,'drin');
+		$pid = $pObj->data['pid'];
+		
+		$lconf = array ();
+		#$lconf['useCacheHash'] = 1;
+		$lconf['parameter'] = 25;
+		
+		$lconf['additionalParams'] = '&value='.$linkHandlerValue;
+       
+		return $pObj->typoLink($linktxt, $lconf);
+	}
+}
+
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sk_pagecomments/hooks/class.tx_skpagecomments_markerhooks.php']) {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sk_pagecomments/hooks/class.tx_skpagecomments_markerhooks.php']);
+}
+
+
 ?>

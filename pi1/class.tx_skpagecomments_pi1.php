@@ -28,8 +28,11 @@
  */
 
 
+
 require_once(PATH_tslib.'class.tslib_pibase.php');
 require_once(PATH_t3lib.'class.t3lib_iconworks.php');
+if(!class_exists('RemoveXSS')) require_once(PATH_site.'typo3conf/ext/sk_pagecomments/RemoveXSS.php');
+
 
 class tx_skpagecomments_pi1 extends tslib_pibase {
 	var $prefixId = 'tx_skpagecomments_pi1';		// Same as class name
@@ -43,8 +46,9 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
     var $number;
     var $pageid;
     var $URLParamsArray;
-    
-	/**
+    var $isNotAllowed = false;
+	
+    /**
 	 * Extension for adding Pagecomments to Pages
 	 */
 	function main($content,$conf)	{
@@ -52,6 +56,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		$this->pi_USER_INT_obj = 1;  // Disable caching                 
+        
+        
         
         //link to homepage ?
         if(intval($this->piVars['goto'])>0) {
@@ -73,25 +79,27 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         $this->subpart['commentlink']=$this->cObj->getSubpart($this->template,'###COMMENTLINK###');
         $this->subpart['formlink']=$this->cObj->getSubpart($this->template,'###FORMLINK###');   
         $this->subpart['comments']=$this->cObj->getSubpart($this->template,'###COMMENTS###');  
+        $this->subpart['pageBrowser']=$this->cObj->getSubpart($this->template,'###PAGEBROWSER###');  
 		$this->subpart['form']=$this->cObj->getSubpart($this->template,'###FORM###');  
         $this->subpart['error']=$this->cObj->getSubpart($this->template,'###ERROR###');  
         $this->subpart['success']=$this->cObj->getSubpart($this->template,'###SUCCESS###');  
         $this->subpart['mail']=$this->cObj->getSubpart($this->template,'###MAILING###');  
+        $this->subpart['usermail']=$this->cObj->getSubpart($this->template,'###USERMAILING###');  
         $this->subpart['teaser']=$this->cObj->getSubpart($this->template,'###COMMENTTEASER###');  
         
         
         
         
-        $this->pageid = $GLOBALS['TSFE']->id; //page-id
-		$this->orig_pageid = $this->pageid;
+        $this->pageid = $conf['fromPages'] ? $conf['fromPages'] : $GLOBALS['TSFE']->id; //page-id
+		$this->orig_pageid = $GLOBALS['TSFE']->id; #$this->pageid;
 		
-        $pidList = $this->pi_getPidList($this->cObj->data['pages'],$this->conf["recursive"]);
-		if (isset($conf["pidList"])) $pidList = $conf["pidList"];
+        $this->pidList = $this->pi_getPidList($this->cObj->data['pages'],$this->conf["recursive"]);
+		if (isset($conf["pidList"])) $this->pidList = $conf["pidList"];
 		
         
         if ($this->conf['pageid']) {
             $this->pageid=implode(',',array_merge(explode(',',$this->pageid),explode(',',$this->conf['pageid'])));        
-            $pidList=implode(',',array_merge(explode(',',$pidList),explode(',',$this->conf['pageid'])));
+            $this->pidList=implode(',',array_merge(explode(',',$this->pidList),explode(',',$this->conf['pageid'])));
         }
 
 		
@@ -121,7 +129,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         #t3lib_div::debug($this->conf);
         
          
-		$addWhere=$getvar='';
+		$this->addWhere=$getvar='';
         if($this->conf['bindToGETvar']) {
             $var=$this->conf['bindToGETvar'];
             if(strpos($var,'[')) {
@@ -130,14 +138,23 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 $p2=substr($p2,0,strlen($p2)-1);
                 $getvar=t3lib_div::GPvar($p1);
                 $lookForValue=$getvar[$p2];
-                $addWhere=" AND piVar='".$this->conf['bindToGETvar'].'='.$lookForValue."'";
-                #t3lib_div::debug($addWhere);
+                
             } else {
-                $getvar=t3lib_div::GPvar($var);
+                $lookForValue=t3lib_div::GPvar($var);
             }
-            
+            $this->addWhere=" AND piVar='".$this->conf['bindToGETvar'].'='.$lookForValue."'";   
             
         }
+        
+        //Hook for addWhere
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tx_skpagecomments']['addWhere'])) {
+			foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tx_skpagecomments']['addWhere'] as $_classRef) {
+				$_procObj = & t3lib_div::getUserObj($_classRef);
+				$this->addWhere = $_procObj->addWhereProcessor($this->addWhere,& $lookForValue, & $this);
+			}
+		} 
+        
+   
         
         if (t3lib_extMgm::isLoaded('sr_freecap') && !$this->conf['useCaptcha'] && $this->conf['useFreecap']) {
             require_once(t3lib_extMgm::extPath('sr_freecap').'pi2/class.tx_srfreecap_pi2.php');
@@ -146,19 +163,19 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         }
         
 		//Get Rec-count
+        #t3lib_div::debug($GLOBALS['TYPO3_DB']->SELECTquery('count(*)','tx_skpagecomments_comments','pageid IN('.$this->pageid.') AND pid IN('.$this->pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0"'.$this->addWhere),'debug');
         
-		$result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*)','tx_skpagecomments_comments','pageid IN('.$this->pageid.') AND pid IN('.$pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0"'.$addWhere);
+		$result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*)','tx_skpagecomments_comments','pageid IN('.$this->pageid.') AND pid IN('.$this->pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0"'.$this->addWhere);
 		$row=$GLOBALS['TYPO3_DB']->sql_fetch_row($result);
 		$reccount=$row[0];
 		
-        $result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*)','tx_skpagecomments_comments','pageid IN('.$this->pageid.') AND pid IN('.$pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0" AND parentId="0"'.$addWhere);
+        $result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*)','tx_skpagecomments_comments','pageid IN('.$this->pageid.') AND pid IN('.$this->pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0" AND parentId="0"'.$this->addWhere);
 		$row=$GLOBALS['TYPO3_DB']->sql_fetch_row($result);
 		$parentcount=$row[0];
 		
 		if ($this->piVars['success']==1) $errormsg=$this->cObj->wrap($this->pi_getLL('entry_success'),$successLayout);
         
 		if(intval($this->conf['showCommentsLink'])==1 && intval($this->conf['showComments'])==0 && intval($this->piVars['showComments'])!=1) {
-            #$wrappedSubpartArray['COMMENTLINKWRAP']=explode('|', $this->cObj->typolink('|',array('parameter'=>$this->pageid,'section'=>'CommentStart'))); # $this->pi_linkTP_keepPIvars('|',array('showComments'=>1),0,1));
 			
              if($this->conf['bindToGETvar']) {          
                  $lconf=array_merge($this->conf['formLink.'],array(
@@ -176,7 +193,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 $l=$this->cObj->typolink('|',$lconf);
             }
             
-            $wrappedSubpartArray['COMMENTLINKWRAP']=explode('|',$l); # $this->pi_linkTP_keepPIvars('|',array('showComments'=>1),0,1));
+            $wrappedSubpartArray['COMMENTLINKWRAP']=explode('|',$l); 
             $markerArray['###RECORDCOUNT###']=$reccount;
             $markerArray['###LINKTEXT###']=$this->pi_getLL('showComment');
             $content.=$this->cObj->substituteMarkerArrayCached($this->subpart['commentlink'] ,$markerArray,$subpartArray,$wrappedSubpartArray); 
@@ -189,14 +206,16 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         
                 $insertArr['parentId']= intval($this->piVars['answerid']);
                 
-                $insertArr['name']=htmlspecialchars($this->piVars['name']); 
-                $insertArr['email']=htmlspecialchars($this->piVars['email']); 
-                $insertArr['homepage']=htmlspecialchars(strtolower($this->piVars['homepage'])); 
+                $insertArr['name']=$GLOBALS['TYPO3_DB']->quoteStr($this->piVars['name'],'tx_skpagecomments_comments'); 
+                $insertArr['email']=$GLOBALS['TYPO3_DB']->quoteStr($this->piVars['email'],'tx_skpagecomments_comments'); 
+                $insertArr['homepage']=$GLOBALS['TYPO3_DB']->quoteStr(strtolower($this->piVars['homepage']),'tx_skpagecomments_comments'); 
                 $insertArr['comment']=$this->piVars['comment']; 
 				$insertArr['crdate']=time();
 				$insertArr['tstamp']=time();
 				$insertArr['pageid']=$this->orig_pageid;
-				$insertArr['pid']=$pidList;
+                $insertArr['pid']=$this->pidList;
+                $insertArr['mailonanswer']=intval($this->piVars['mailonanswer']);      
+				$insertArr['mailoncomment']=intval($this->piVars['mailoncomment']);            
 				if ($GLOBALS['TSFE']->fe_user->user['uid'] > 0) {
 					$insertArr['feuser_uid'] = $GLOBALS['TSFE']->fe_user->user['uid'];
 				}
@@ -245,7 +264,9 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                         $time = 60*60*24*$this->conf['useCookies'];
 					    setcookie($this->prefixId.'_name', $insertArr['name'], time()+$time);
                         setcookie($this->prefixId.'_email', $insertArr['email'], time()+$time);
-					    setcookie($this->prefixId.'_homepage', $insertArr['homepage'], time()+$time);
+                        setcookie($this->prefixId.'_homepage', $insertArr['homepage'], time()+$time);
+                        setcookie($this->prefixId.'_mailonanswer', $insertArr['mailonanswer'], time()+$time);
+					    setcookie($this->prefixId.'_mailoncomment', $insertArr['mailoncomment'], time()+$time);
                     }
                     //insert comment
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_skpagecomments_comments',$insertArr);
@@ -262,6 +283,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                             array(
                                 '###USER###'=>$insertArr['name'],
                                 '###IP###' => $ip_address,
+                                '###EMAIL###' => $insertArr['email'],
+                                '###HOMEPAGE###' => $insertArr['homepage'],
                                 '###DATE###'=>date($this->conf['dateFormat'],$insertArr['crdate']),
                                 '###COMMENT###'=>$insertArr['comment'],
                                 '###PAGELINK###'=>$link.'#comment'.$insertId,
@@ -269,8 +292,31 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                             ),
                             array(),
                             array()
-                         );  
+                         );
+                         $usermsg=$this->cObj->substituteMarkerArrayCached(
+                            $this->subpart['usermail'],
+                            array(
+                                '###USER###'=>$insertArr['name'],
+                                '###IP###' => $ip_address,
+                                '###EMAIL###' => $insertArr['email'],
+                                '###HOMEPAGE###' => $insertArr['homepage'],
+                                '###DATE###'=>date($this->conf['dateFormat'],$insertArr['crdate']),
+                                '###COMMENT###'=>$insertArr['comment'],
+                                '###PAGELINK###'=>$link.'#comment'.$insertId,
+                                '###PAGETITLE###'=>$GLOBALS['TSFE']->page['title']
+                            ),
+                            array(),
+                            array()
+                         );
+                         #mail to admin  
                          $this->cObj->sendNotifyEmail($msg, $this->conf['emailAddress'], '', $this->conf['emailFrom'], $email_fromName='PageComments', $this->conf['emailFrom']);
+                         #mail to users
+                         $mails=$this->collectEmails($insertId);
+                         if(count($mails)>0) {
+                            foreach($mails as $reciever) {
+                                $this->cObj->sendNotifyEmail($usermsg, $reciever, '', $this->conf['emailFrom'], $email_fromName='PageComments', $this->conf['emailFrom']);
+                            }
+                         }
                     }
 					header('Location: '.t3lib_div::getIndpEnv('REQUEST_URI').(strpos(t3lib_div::getIndpEnv('REQUEST_URI'),'?')?'&':'?').$this->prefixId.'[showComments]=1&'.$this->prefixId.'[success]=1');
 					exit;
@@ -287,19 +333,83 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 $markerArray['###HIDEMSG###']='';
             }
             
+            
             $number=array();
             $i=1;         
-            $result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid','tx_skpagecomments_comments','pageid="'.$this->pageid.'" AND pid IN('.$pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0"'.$addWhere,'crdate asc');
+            $result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid','tx_skpagecomments_comments','pageid="'.$this->pageid.'" AND pid IN('.$this->pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0"'.$this->addWhere,'crdate asc');
             while($temp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($result)) {  
                 $this->number[$temp['uid']]=$i++;
             }   
                
+            //Pagebrowser
+            if($this->conf['pageBrowser'] && !$this->piVars['showall']) {
+                $offset=intval($this->piVars['offset']);
+                $commentsPerPage  = intval($this->conf['pageBrowser.']['commentsPerPage'])==0 ? 10 : intval($this->conf['pageBrowser.']['commentsPerPage']);
+                $startWith= $commentsPerPage * $offset; 
+                $pagesTotal=ceil($parentcount/$commentsPerPage);
+                $nextPage=$offset+1;
+                $previousPage=$offset-1;
+                $min=1;
+                $max=$pagesTotal;
+                if($pagesTotal >$pagesCount && $pagesCount>0) {
+                    $pstart=$offset-ceil(($pagesCount-2)/2);
+                    if($pstart<1) $pstart=1;
+                    $pend=$pstart+$pagesCount;
+                    if($pend>$pagesTotal-1) $pend=$pagesTotal-1;
+                } else {
+                    $pstart=$min;
+                    $pend=$pagesTotal;
+                }
+                for($i=$min;$i<=$max;$i++) {
+                    if($offset+1==$i) {
+                        $markerArray['###PAGES###'].=$this->cObj->stdWrap($i,$this->conf['pageBrowser.']['actPage_stdWrap.']);
+                    } else {
+                        if($i==1 || $i==$max || ($i>1 && $i>=$pstart && $i<=$pend && $i<$max)) {
+                        $GLOBALS['TSFE']->ATagParams = 'title="'.$this->pi_getLL('page').' '.$i.'"'; 
+                        $link=$this->cObj->typolink($i,array(
+                            'parameter' => $this->orig_pageid,    
+                            'additionalParams' => ($this->conf['bindToGETvar']?$this->URLParamsArray:'').'&'.$this->prefixId.'[offset]='.($i-1),
+                            'section' => 'CommentStart'
+                        )); 
+                        $markerArray['###PAGES###'].=$this->cObj->stdWrap($link,$this->conf['pages_stdWrap.']);
+                        } elseif (($i==2 && $i<$pstart) || ($i==$pend+1 && $i<$max)){
+                            $markerArray['###PAGES###'].= $this->cObj->stdWrap('...',$this->conf['pageBrowser.']['actPage_stdWrap.']);
+                        }
+                    }
+                }
+                $markerArray['###PAGEOF###']=sprintf($this->pi_getLL('page_of'),$offset+1,$pagesTotal); ;
+                $markerArray['###PREVIOUS###']=$previousPage<0?'':$this->cObj->stdWrap(
+                    $this->cObj->typolink(
+                        $this->cObj->stdWrap($this->pi_getLL('previous'),$this->conf['pageBrowser.']['previousText_stdWrap.']),
+                        array(
+                            'parameter' => $this->orig_pageid,    
+                            'additionalParams' => ($this->conf['bindToGETvar']?$this->URLParamsArray:'').'&'.$this->prefixId.'[offset]='.$previousPage,
+                            'section' => 'CommentStart'
+                        
+                        )),$this->conf['pageBrowser.']['previous_stdWrap.']);
+                    
+                
+                $markerArray['###NEXT###']=$nextPage+1>$pagesTotal?'':$this->cObj->stdWrap(
+                    $this->cObj->typolink(
+                        $this->cObj->stdWrap($this->pi_getLL('next'),$this->conf['pageBrowser.']['nextText_stdWrap.']),
+                        array(
+                            'parameter' => $this->orig_pageid,    
+                            'additionalParams' => ($this->conf['bindToGETvar']?$this->URLParamsArray:'').'&'.$this->prefixId.'[offset]='.$nextPage,
+                            'section' => 'CommentStart'
+                        
+                        )),$this->conf['pageBrowser.']['next_stdWrap.']);
+                    
+           
+                $subpartArray['###PAGEBROWSER']=$this->cObj->substituteMarkerArrayCached($this->subpart['pageBrowser'],$markerArray,array(),array());
+                #t3lib_div::debug("parents: $parentcount start: $startWith commentsPerPage: $commentsPerPage pages: $pagesTotal");
+            } else $subpartArray['###PAGEBROWSER']='';
+            
             
             $orderDir=strtoupper($this->piVars['showForm']==1 ? $this->conf['sortOrderOnForm']:$this->conf['sortOrder']);
             $order='uid asc';
 			$limit=$this->conf['maxRecords']>0 ? $this->conf['maxRecords'] : '';
 			
-            $result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_skpagecomments_comments','pageid IN('.$this->pageid.') AND pid IN('.$pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0"'.$addWhere,$order,$limit);
+            $result=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_skpagecomments_comments','pageid IN('.$this->pageid.') AND pid IN('.$this->pidList.') '.($this->isAdmin() ? '' : 'AND hidden="0"').' AND deleted="0"'.$this->addWhere,$order,$limit);
             
 			if($reccount>0) {
 				$markerArray['###COMMENTCOUNT###']=$this->showFields('count',$reccount.' '.($reccount==1 ? $this->pi_getLL('comment') : $this->pi_getLL('comments')));
@@ -312,14 +422,30 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                 if($orderDir=='DESC')  $this->comment=array_reverse($this->comment);
                 
                 //render Comments
+                $i=0;
                 foreach($this->comment as $key=>$temp) {    
-                    if($temp['parentId']==0) $contentList.=$this->renderComment($temp);
+                   if($temp['parentId']==0) {
+                       $i++; 
+                       if($i<=$startWith) continue;     
+                       if($this->conf['pageBrowser'] && $i>$startWith+$commentsPerPage) break;
+                       $contentList.=$this->renderComment($temp);
+                   }
 	            }
                 
                 $subpartArray['###COMMENTLIST###']=$contentList;
                 $subpartArray['###ANSWERLIST###']='';        
                                                                    
                 if($this->piVars['success']) $content.='<a id="CommentForm"></a>';
+                
+                //Hook for additional markers
+                if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tx_skpagecomments']['addMarkerSubpart'])) {
+			        foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tx_skpagecomments']['addMarkerSubpart'] as $_classRef) {
+				        $_procObj = & t3lib_div::getUserObj($_classRef);
+				        $_procObj->addMarkerSubpartProcessor(& $markerArray,& $this);
+			        }
+		        } 
+        
+        
                 $content.=$this->cObj->substituteMarkerArrayCached($this->subpart['comments'],$markerArray,$subpartArray,array());  
                 $markerArray=array();       
                     
@@ -332,14 +458,16 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
             if(!$this->conf['formLink.']) $this->conf['formLink.']=array();
             
 			if($this->conf['showForm']==1 && $this->piVars['success']!=1 && (($this->piVars['answer']) || ($this->conf['commentOnlyRegistered']==0) || ($this->conf['commentOnlyRegistered']==1 && $feuser===true))) {
-				if($this->conf['showFormLink']==1 && $this->piVars['showForm']!=1 && !$this->piVars['answer']) {
+				#t3lib_div::debug($this->isNotAllowed,'debug');
+                
+                if($this->conf['showFormLink']==1 && $this->piVars['showForm']!=1 && !$this->piVars['answer'] && !$this->isNotAllowed) {
                     #generate link for form
                     
                     $subpartArray['###FORMLINK###']='';
                     if($this->conf['bindToGETvar']) {          
                          $lconf=array_merge($this->conf['formLink.'],array(
                             'parameter' => $this->orig_pageid,
-                            'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[showComments]=1&'.$this->prefixId.'[showForm]=1',
+                            'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[showComments]=1&'.$this->prefixId.'[showForm]=1'.($this->conf['pageBrowser']?'&'.$this->prefixId.'[offset]='.$offset:'').($this->piVars['showall']?'&'.$this->prefixId.'[showall]=1':''),
                             'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : ''),
                         ));
                         
@@ -350,7 +478,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     } else {
                         $lconf=array_merge($this->conf['formLink.'],array(
                             'parameter' => $this->orig_pageid,
-                            'additionalParams' => '&'.$this->prefixId.'[showComments]=1&'.$this->prefixId.'[showForm]=1',
+                            'additionalParams' => '&'.$this->prefixId.'[showComments]=1&'.$this->prefixId.'[showForm]=1'.($this->conf['pageBrowser']?'&'.$this->prefixId.'[offset]='.$offset:'').($this->piVars['showall']?'&'.$this->prefixId.'[showall]=1':''),
                             'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : ''),
                         ));
                         $l=$this->cObj->typolink($this->pi_getLL('new_comment'),$lconf);
@@ -362,10 +490,11 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                     $wrappedSubpartArray['FORMLINKWRAP']=explode('|', $this->cObj->typolink('|',$lconf));  
                     if($showLink==1) $form.=$this->cObj->substituteMarkerArrayCached($this->subpart['formlink'],$markerArray,$subpartArray,$wrappedSubpartArray); 
                     
+                    
                 } else {
                     $show=1;
                     if($this->conf['bindToGETvar'] && intval($lookForValue)==0) $show=0;  
-                    
+                    if($this->isNotAllowed) $show=0;
                     if($show==1) {
                         //Kommentar-Formular
 				        $markerArray['###ERRORMSG###']=$errormsg;
@@ -386,9 +515,11 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                             $insertArr['name']=$_COOKIE[$this->prefixId.'_name'];
                             $insertArr['email']=$_COOKIE[$this->prefixId.'_email']; 
                             $insertArr['homepage']=$_COOKIE[$this->prefixId.'_homepage']; 
+                            $insertArr['mailonanswer']=$_COOKIE[$this->prefixId.'_mailonanswer']; 
+                            $insertArr['mailoncomment']=$_COOKIE[$this->prefixId.'_mailoncomment']; 
                         }
                         
-                        $markerArray['###V_NAME###']=$feuser?$GLOBALS['TSFE']->fe_user->user['username']:$insertArr['name']?$insertArr['name']:$this->pi_getLL('name_value');
+                        $markerArray['###V_NAME###']=$feuser?$GLOBALS['TSFE']->fe_user->user[$this->conf['username']]:$insertArr['name']?$insertArr['name']:$this->pi_getLL('name_value');
                         $markerArray['###V_EMAIL###']=$feuser?$GLOBALS['TSFE']->fe_user->user['email']:$insertArr['email']?$insertArr['email']:$this->pi_getLL('email_value');
                         $markerArray['###V_HOMEPAGE###']=$feuser?$GLOBALS['TSFE']->fe_user->user['www']:$insertArr['homepage']?$insertArr['homepage']:$this->pi_getLL('homepage_value');
                         $markerArray['###V_COMMENT###']=$insertArr['comment']?$insertArr['comment']:$this->pi_getLL('comment_value'); 
@@ -421,6 +552,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                             $subpartArray['###CAPTCHA_INSERT###'] = ''; 
                         }
                         
+                        $markerArray['###MAILONANSWER###']= $this->showFields('mailonanswer','<p><label class="check" for="mailonanswer"><input type="checkbox" value="1" id="mailonanswer" name="tx_skpagecomments_pi1[mailonanswer]" '.($insertArr['mailonanswer']==1?'checked="checked"':'').' /> '.$this->pi_getLL('mailonanswer').'</label></p>');
+                        $markerArray['###MAILONCOMMENT###']= $this->showFields('mailoncomment','<p><label class="check" for="mailoncomment"><input type="checkbox" value="1" id="mailoncomment" name="tx_skpagecomments_pi1[mailoncomment]" '.($insertArr['mailoncomment']==1?'checked="checked"':'').' /> '.$this->pi_getLL('mailoncomment').'</label></p>');
                         
                         if($feuser) {  
                              if($conf['showRegisteredFields']==1) {
@@ -432,12 +565,15 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
                                 $subpartArray['###FORM_NAME###'] = '';
                                 $subpartArray['###FORM_EMAIL###'] = ''; 
                                 $subpartArray['###FORM_HOMEPAGE###'] = ''; 
-                                $markerArray['###V_NAME###']=$GLOBALS['TSFE']->fe_user->user['username'];
+                                $markerArray['###V_NAME###']=$GLOBALS['TSFE']->fe_user->user[$this->conf['username']];
                                 $markerArray['###V_EMAIL###']=$GLOBALS['TSFE']->fe_user->user['email'];
                                 $markerArray['###V_HOMEPAGE###']=$GLOBALS['TSFE']->fe_user->user['www'];
-                                $markerArray['###HIDDENFIELDS###'].='<input type="hidden" name="'.$this->prefixId.'[name]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['username'].'" />
+                                $markerArray['###HIDDENFIELDS###'].='<input type="hidden" name="'.$this->prefixId.'[name]'.'" value="'.$GLOBALS['TSFE']->fe_user->user[$this->conf['username']].'" />
                                 <input type="hidden" name="'.$this->prefixId.'[email]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['email'].'" />    
-                                <input type="hidden" name="'.$this->prefixId.'[homepage]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['www'].'" />';    
+                                <input type="hidden" name="'.$this->prefixId.'[homepage]'.'" value="'.$GLOBALS['TSFE']->fe_user->user['www'].'" />'
+                                .($this->conf['pageBrowser']?'<input type="hidden" name="'.$this->prefixId.'[offset]'.'" value="'.$offset.'" />':'');  
+                                
+                                    
                              }
                         } else $subpartArray['###FORM_VALUES_USER_LOGGED_IN###']='';
                        
@@ -464,7 +600,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
             $lconf=array_merge($this->conf['answerLink.'],array(
                 'parameter' => $temp['pageid'],
                 'section' => 'comment'.$temp['uid'],
-                'additionalParams' => $temp['pivar'] ? '&'.$temp['pivar'] : '',
+                'additionalParams' => ($temp['pivar'] ? '&'.$temp['pivar'] : '').($this->piVars['showall']?'&'.$this->prefixId.'[showall]=1':''),
             ));
             $l=$this->cObj->typolink('|',$lconf);
             $linkWrapArray['###LINK###']=explode('|',$l);   
@@ -475,7 +611,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
             $list=$this->cObj->getSubpart($this->subpart['comments'],'###ANSWERLIST###');
         }
         $markerArray['###DATEPHRASE###']=sprintf($this->pi_getLL('wrote'),$this->showDate($this->conf['dateFormat'],$temp['crdate']));
-       
+        
         $markerArray['###DATE###']=$this->showDate($this->conf['dateFormat'], $temp['crdate']);
         $markerArray['###NAME###']=$this->cObj->stdWrap($temp['name'],$this->conf['commentName.']);
         $markerArray['###NUMBER###']=$this->showFields('number','<a id="comment'.$temp['uid'].'" title="ID: '.$temp['uid'].'">'.$this->cObj->stdWrap($this->number[$temp['uid']],$this->conf['commentNumber.']).'</a>'); 
@@ -504,26 +640,25 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
            
            
         $markerArray['###COMMENT###']=$this->displayComment($temp['comment']);
-       
         
         if($this->conf['allowAnswer']) {
             if($this->conf['bindToGETvar']) {          
                  $lconf=array_merge((array) $this->conf['answerLink.'],array(
                     'parameter' => $this->orig_pageid,
-                    'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[answer]='.$temp['uid'],
+                    'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[answer]='.$temp['uid'].($this->piVars['showall']?'&'.$this->prefixId.'[showall]=1':''),
                     'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : ''),
                 ));
                $l=$this->cObj->typolink($this->cObj->stdWrap($this->pi_getLL('answer'),$this->conf['answer.']),$lconf); 
             } else {
                 $lconf=array_merge($this->conf['answerLink.'],array(
                     'parameter' => $this->orig_pageid,
-                    'additionalParams' => '&'.$this->prefixId.'[answer]='.$temp['uid'],
+                    'additionalParams' => '&'.$this->prefixId.'[answer]='.$temp['uid'].($this->piVars['showall']?'&'.$this->prefixId.'[showall]=1':''),
                     'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : ''),
                 ));
                 $l=$this->cObj->typolink($this->cObj->stdWrap($this->pi_getLL('answer'),$this->conf['answer.']),$lconf);
             }
         } elseif ($this->conf['registerInfo'] && $this->conf['registerPid']>0) {
-        	$lconf=array( 'parameter' => $this->conf['registerPid']);
+            $lconf=array( 'parameter' => $this->conf['registerPid'],'additionalParams' => '&redirect_url='.urlencode(t3lib_div::getIndpEnv('REQUEST_URI')));
         	$l = $this->cObj->typolink($this->cObj->stdWrap($this->pi_getLL('registerinfo'),$this->conf['registerInfo.']),$lconf);
         	
         }
@@ -533,12 +668,12 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
             if($this->conf['bindToGETvar']) {          
                  $lconf=array_merge((array) $this->conf['adminLink.'],array(
                     'parameter' => $this->orig_pageid,
-                    'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[hide]='.$temp['uid'].'&'.$this->prefixId.'[status]='.($temp['hidden']==0?1:0),
+                    'additionalParams' => $this->URLParamsArray.'&'.$this->prefixId.'[hide]='.$temp['uid'].'&'.$this->prefixId.'[status]='.($temp['hidden']==0?1:0).($this->piVars['showall']?'&'.$this->prefixId.'[showall]=1':''),
                 ));
             } else {
                 $lconf=array_merge($this->conf['adminLink.'],array(
                     'parameter' => $this->orig_pageid,
-                    'additionalParams' => '&'.$this->prefixId.'[hide]='.$temp['uid'].'&'.$this->prefixId.'[status]='.($temp['hidden']==0?1:0),
+                    'additionalParams' => '&'.$this->prefixId.'[hide]='.$temp['uid'].'&'.$this->prefixId.'[status]='.($temp['hidden']==0?1:0).($this->piVars['showall']?'&'.$this->prefixId.'[showall]=1':''),
                 ));
             }
             if($temp['hidden']==0)
@@ -550,7 +685,13 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
            
         } else  $markerArray['###ADMINHIDE###']='';
            
-           
+        //Hook for additional comment markers
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tx_skpagecomments']['addCommentMarker'])) {
+			foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tx_skpagecomments']['addCommentMarker'] as $_classRef) {
+				$_procObj = & t3lib_div::getUserObj($_classRef);
+				$_procObj->addMarkerSubpartProcessor(& $markerArray,$temp,& $this);
+			}
+		}    
            
         $content=$markerArray['###COMMENT###'] != '' ? $this->cObj->substituteMarkerArrayCached($list,$markerArray,$subpartArray,$linkWrapArray) : '';  
          
@@ -605,7 +746,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
     }
     
     function displayComment($comment) {
-    	if (!isset($this->conf['blind.']['smileys']) || (isset($this->conf['blind.']['smileys']) && $this->conf['blind.']['smileys'] != 1)) {
+    	$comment=trim($comment);
+        if (!isset($this->conf['blind.']['smileys']) || (isset($this->conf['blind.']['smileys']) && $this->conf['blind.']['smileys'] != 1)) {
     		$res=t3lib_extMgm::siteRelPath('sk_pagecomments').'res/smileys/';   
     		$comment = str_replace(":)",'<img src="'.$res.'icon_smile.gif" alt="smile" class="smilie"  />',$comment);
     		$comment = str_replace(";)",'<img src="'.$res.'icon_wink.gif" alt="zwinker" class="smilie"  />',$comment);
@@ -627,16 +769,62 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
     		$comment = ereg_replace(":surprised:", '<img src="'.$res.'icon_surprised.gif" alt="Surprised" class="smilie"  />', $comment);
     	}
 
-    	$comment=$this->disableXSS($comment);
-    		
+    	#$comment=$this->disableXSS($comment);
+    	$comment = RemoveXSS::RemoveXSS($comment);	
     	//Zeilenumbr�che umwandeln
-    	$comment=preg_replace('/\r\n|\r|\n/', "<br />", trim($comment));
+    	#$comment=preg_replace('/\r\n|\r|\n/', "<br />", trim($comment));
 
+        //Tabs
+        #$comment=str_replace(chr(9),'&nbsp;&nbsp;&nbsp;',$comment);
+        #$comment=str_replace(' ','&nbsp;',$comment);
+        
     	//Links umwandeln
     	#$comment=preg_replace("/http:\/\/(.+?)[[:space:]]/si"," <a href=\"http://$1\" target=\"_blank\">$1</a> ",$comment);
     	
+        //BBCode
+        $patterns = array(
+            "/\[code\](.*?)\[\/code\]/isS",
+			"/\[quote\](.*?)\[\/quote\]/isS",
+			"/\[list:[a-z0-9]{10}\](.*?)\[\/list:[a-z0-9]{10}\]/isS",
+			"/\[list=[a-z0-9]{1}:[a-z0-9]{10}\](.*?)\[\/list:[a-z0-9]{1}:[a-z0-9]{10}\]/isS"
+		);
+        while(list($k,$v)=each($patterns)){
+			#t3lib_div::debug($k - $v,'KV');
+            #$text  = preg_replace_callback($v,create_function('$treffer',' return "<ul>".str_replace("[*]","</li><li>",$treffer[1])."</ul>";'),$text);
+            #$comment = preg_replace_callback($v, array('tx_skpagecomments_pi1','getBBCodes'),$comment);
+            
+		}
+		
+        $comment = preg_replace_callback('{\[(\w+)((=)(.+)|())\]((.|\n)*)\[/\1\]}U', array('tx_skpagecomments_pi1','getBBCodes'),$comment);
+        
         
         return $this->cObj->stdWrap($comment,$this->conf['comment.']);
+    }
+    
+    function getBBCodes($match) {
+        #t3lib_div::debug($match);
+        switch(strtolower($match[1])) {
+            case 'quote': 
+                $BB=explode('|',$this->conf['BBcodes.']['quote']);
+                if($match[3]=='=' && strlen($match[4])>0) {
+                    $QS=explode('|',$this->conf['BBcodes.']['quoteSource']); 
+                    return $QS[0].$match[4].$QS[1].$BB[0].$match[6].$BB[1];                                 
+                } else {
+                    return $BB[0].$match[6].$BB[1];
+                }
+                break; 
+            case 'php':
+               $BB=explode('|',$this->conf['BBcodes.']['code']);   
+               $QS=explode('|',$this->conf['BBcodes.']['codeLanguage']);  
+               return $QS[0].'PHP'.$QS[1].$BB[0].highlight_string('<?php'.$match[6].'?>',true).$BB[1];      
+               break;
+            case 'ts':
+               $BB=explode('|',$this->conf['BBcodes.']['code']); 
+               $BB=explode('|',$this->conf['BBcodes.']['code']);   
+               $QS=explode('|',$this->conf['BBcodes.']['codeLanguage']);  
+               return $QS[0].'Typoscript'.$QS[1].$BB[0].$this->highlightTS($match[6]).$BB[1];    
+               break; 
+        }
     }
     
     function cleanUrlPars($arr) {
@@ -673,6 +861,14 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		return $content;
 	}
 
+    
+    function highlightTS($code,$numbers=1) {
+        require_once(PATH_t3lib.'class.t3lib_tsparser.php');
+ 		$tsparser = t3lib_div::makeInstance("t3lib_TSparser");
+ 		$tsparser->highLightStyles = $this->conf['highLightStyles'];  
+ 		$tsparser->lineNumberOffset=1;
+  		return $tsparser->doSyntaxHighlight($code, $numbers==1 ? array($tsparser->lineNumberOffset) : '', 0);
+    }
 	//TEASER
     function showTeaser() {
         
@@ -700,6 +896,30 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
         return false;
     }
 
+    function collectEmails($id) {
+        #search for parents
+        $emails=array();
+        $row=$this->pi_getRecord('tx_skpagecomments_comments',$id);
+        if($row['parentId']>0) {
+            while($row['parentId']!=0) {
+                $row=$this->pi_getRecord('tx_skpagecomments_comments',$row['parentId']);
+                $this->getEmailsFromChilds($row['uid'],$emails);
+            }
+        }
+        #search for all
+        $res=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_skpagecomments_comments','pageid="'.$this->pageid.'" AND pid IN('.$this->pidList.') and hidden=0 and deleted=0 and mailoncomment=1'.$this->addWhere);
+        while($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+           $emails[]=$row['email'];
+        }
+        return array_unique($emails);
+    }
+    function getEmailsFromChilds($id,&$emails)  {
+        $emails=array();
+        $res=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_skpagecomments_comments','pageid="'.$this->pageid.'" AND pid IN('.$this->pidList.') and hidden=0 and deleted=0 and mailonanswer=1 and parentId='.$id);
+        while($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+           $emails[]=$row['email'];
+        }
+    }
 }
 
 

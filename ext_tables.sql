@@ -31,6 +31,8 @@ CREATE TABLE tx_skpagecomments_comments (
     comment text NOT NULL,
     pageid int(11) DEFAULT '0' NOT NULL,
     pivar tinytext NOT NULL,
+    mailonanswer tinyint(4) DEFAULT '0' NOT NULL,
+    mailoncomment tinyint(4) DEFAULT '0' NOT NULL,
     feuser_uid int(11) DEFAULT '0' NOT NULL,
     
     PRIMARY KEY (uid),
@@ -38,4 +40,3 @@ CREATE TABLE tx_skpagecomments_comments (
     KEY cparent (parentId),
     KEY feuser (feuser_uid)
  );
-

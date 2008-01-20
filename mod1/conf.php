@@ -6,7 +6,7 @@ $BACK_PATH='../../../../typo3/';
 $MCONF['name']='web_txskpagecommentsM1';
 
 	
-$MCONF['access']='admin';
+$MCONF['access']='user,group';
 $MCONF['script']='index.php';
 
 $MLANG['default']['tabs_images']['tab'] = 'moduleicon.gif';

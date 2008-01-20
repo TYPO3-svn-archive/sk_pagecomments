@@ -4,7 +4,7 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 $TCA["tx_skpagecomments_comments"] = Array (
 	"ctrl" => $TCA["tx_skpagecomments_comments"]["ctrl"],
 	"interface" => Array (
-		"showRecordFieldList" => "sys_language_uid,l18n_parent,l18n_diffsource,hidden,parentId,starttime,endtime,fe_group,name,email,homepage,comment,pageid,allowed,pivar"
+		"showRecordFieldList" => "sys_language_uid,l18n_parent,l18n_diffsource,hidden,parentId,starttime,endtime,fe_group,name,email,homepage,comment,pageid,allowed,pivar,mailonanswer,mailoncomment"
 	),
 	"feInterface" => $TCA["tx_skpagecomments_comments"]["feInterface"],
 	"columns" => Array (
@@ -169,6 +169,22 @@ $TCA["tx_skpagecomments_comments"] = Array (
 				"size" => "30",
 			)
 		),
+        'mailonanswer' => array (		
+			'exclude' => 1,
+			'label'   => "LLL:EXT:sk_pagecomments/locallang_db.xml:tx_skpagecomments_comments.mailonanswer",
+			'config'  => array (
+				'type'    => 'check',
+				'default' => '0'
+			)
+		),
+        'mailoncomment' => array (		
+			'exclude' => 1,
+			'label'   => "LLL:EXT:sk_pagecomments/locallang_db.xml:tx_skpagecomments_comments.mailoncomment",
+			'config'  => array (
+				'type'    => 'check',
+				'default' => '0'
+			)
+		),
 		'feuser_uid' => array(
 			'exclude' => 1,
 			'label' => 'LLL:EXT:sk_pagecomments/locallang_db.xml:tx_skpagecomments_comments.feuser_uid',
@@ -183,7 +199,7 @@ $TCA["tx_skpagecomments_comments"] = Array (
 		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden, parentId;;1, name, email, homepage, comment, pageid, pivar, feuser_uid")
+		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden, parentId;;1, name, email, homepage, comment, pageid, pivar, mailonanswer, mailoncomment, feuser_uid")
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "starttime, endtime, fe_group")
