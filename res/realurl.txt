@@ -1,0 +1,21 @@
+for Realurl take this snippet and put it in your localconf.php-Configuration
+
+'postVarSets' => array(
+        '_DEFAULT' => array (
+        ...
+        ...
+        
+        //this is for the page comments
+        'comments' => array(
+                array(
+                    'GETvar' => 'tx_skpagecomments_pi1[showComments]',
+                ),
+                array(
+                    'GETvar' => 'tx_skpagecomments_pi1[showForm]',
+                ),
+        )
+        //end page comments configuration
+   
+        ...
+        ...
+
