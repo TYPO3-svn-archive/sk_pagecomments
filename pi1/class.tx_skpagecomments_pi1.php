@@ -31,25 +31,26 @@ require_once (PATH_tslib . 'class.tslib_pibase.php');
 require_once (PATH_t3lib . 'class.t3lib_iconworks.php');
 
 class tx_skpagecomments_pi1 extends tslib_pibase {
-	var $prefixId = 'tx_skpagecomments_pi1'; // Same as class name
-	var $scriptRelPath = 'pi1/class.tx_skpagecomments_pi1.php'; // Path to this script relative to the extension dir.
-	var $extKey = 'sk_pagecomments'; // The extension key.
-	var $pi_checkCHash = false;
-	var $prefixCSS = 'sk-pagecomments-';
-	var $lookForValue;
-	var $template;
-	var $subpart;
-	var $number;
-	var $pageid;
-	var $URLParamsArray;
-	var $isNotAllowed = false;
+	public $prefixId = 'tx_skpagecomments_pi1'; // Same as class name
+	public $scriptRelPath = 'pi1/class.tx_skpagecomments_pi1.php'; // Path to this script relative to the extension dir.
+	public $extKey = 'sk_pagecomments'; // The extension key.
+	public $pi_checkCHash = false;
+	
+	protected $prefixCSS = 'sk-pagecomments-';
+	protected $lookForValue;
+	protected $template;
+	protected $subpart;
+	protected $number;
+	protected $pageid;
+	protected $URLParamsArray;
+	protected $isNotAllowed = false;
 	protected $userLoggedIn;
 	
 	private $freeCap;
 	/**
 	 * Extension for adding Pagecomments to Pages
 	 */
-	function main($content, $conf) {
+	public function main($content, $conf) {
 		$this->conf = $conf;
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
@@ -115,8 +116,6 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		
 		//Conf
 		$this->URLParamsArray = $this->cleanUrlPars($_GET);
-		
-		#t3lib_div::debug($this->conf);
 		
 
 		$this->addWhere = $getvar = '';
@@ -527,14 +526,14 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		return $this->pi_wrapInBaseClass($this->conf['showFormOnTop'] == 1 ? $form . $content : $content . $form);
 	}
 	
-	function showFields($name, $value) {
+	protected function showFields($name, $value) {
 		if (isset($this->conf['blind.'][$name]) && $this->conf['blind.'][$name] == 1) {
 			return "";
 		}
 		return $value;
 	}
 	
-	function renderComment($temp, $level = 0, $list = '') {
+	protected function renderComment($temp, $level = 0, $list = '') {
 		if ($level == - 1) {
 			#t3lib_div::debug($temp['pivar']);
 			$lconf = array_merge($this->conf['answerLink.'], array ('parameter' => $temp['pageid'], 'section' => 'comment' . $temp['uid'], 'additionalParams' => ($temp['pivar'] ? '&' . $temp['pivar'] : '') . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : '')));
@@ -628,7 +627,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		return $content;
 	
 	}
-	function smileys() {
+	protected function smileys() {
 		if ($this->conf['blind.']['smileys'] != 1) {
 			$res = t3lib_extMgm::siteRelPath('sk_pagecomments') . 'res/smileys/';
 			$GLOBALS['TSFE']->additionalHeaderData['sk_pagecomments_smileys'] = '
@@ -667,7 +666,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	
 	}
 	
-	function displayComment($comment) {
+	protected function displayComment($comment) {
 		$comment = trim($comment);
 		if (! isset($this->conf['blind.']['smileys']) || (isset($this->conf['blind.']['smileys']) && $this->conf['blind.']['smileys'] != 1)) {
 			$res = t3lib_extMgm::siteRelPath('sk_pagecomments') . 'res/smileys/';
@@ -720,7 +719,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		return $this->cObj->stdWrap($comment, $this->conf['comment.']);
 	}
 	
-	function getBBCodes($match) {
+	protected function getBBCodes($match) {
 		#t3lib_div::debug($match);
 		switch (strtolower($match[1])) {
 			case 'quote' :
@@ -746,7 +745,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		}
 	}
 	
-	function cleanUrlPars($arr) {
+	protected function cleanUrlPars($arr) {
 		$u = '';
 		foreach ($arr as $var => $val) {
 			if (stristr($var, $this->prefixId) === false && $var != 'id') {
@@ -763,7 +762,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		return $u;
 	}
 	
-	function showDate($format, $time) {
+	protected function showDate($format, $time) {
 		if (preg_match("/%/", $format)) {
 			return strftime($format, $time);
 		} else {
@@ -771,7 +770,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		}
 	}
 	
-	function disableXSS($content) {
+	protected function disableXSS($content) {
 		$content = preg_replace("/<script.*>.*/i", "", $content);
 		$content = preg_replace("/<\/script.*>.*/i", "", $content);
 		$content = preg_replace("/<style.*>.*/i", "", $content);
@@ -782,7 +781,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		return $content;
 	}
 	
-	function highlightTS($code, $numbers = 1) {
+	protected function highlightTS($code, $numbers = 1) {
 		require_once (PATH_t3lib . 'class.t3lib_tsparser.php');
 		$tsparser = t3lib_div::makeInstance("t3lib_TSparser");
 		$tsparser->highLightStyles = $this->conf['highLightStyles'];
@@ -790,7 +789,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		return $tsparser->doSyntaxHighlight($code, $numbers == 1 ? array ($tsparser->lineNumberOffset) : '', 0);
 	}
 	//TEASER
-	function showTeaser() {
+	protected function showTeaser() {
 		
 		$list = $this->cObj->getSubpart($this->subpart['teaser'], '###COMMENTS###');
 		
@@ -804,7 +803,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	
 	}
 	
-	function isAdmin() {
+	protected function isAdmin() {
 		$user = $group = array ();
 		if ($this->conf['adminUser'] || $this->conf['adminGroup']) {
 			if ($this->conf['adminUser'])
@@ -817,7 +816,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		return false;
 	}
 	
-	function collectEmails($id) {
+	protected function collectEmails($id) {
 		#search for parents
 		$emails = array ();
 		$row = $this->pi_getRecord('tx_skpagecomments_comments', $id);
@@ -834,7 +833,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		}
 		return array_unique($emails);
 	}
-	function getEmailsFromChilds($id, &$emails) {
+	protected function getEmailsFromChilds($id, &$emails) {
 		$emails = array ();
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'tx_skpagecomments_comments', 'pageid="' . $this->pageid . '" AND pid IN(' . $this->pidList . ') and hidden=0 and deleted=0 and mailonanswer=1 and parentId=' . $id);
 		while ( $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res) ) {
