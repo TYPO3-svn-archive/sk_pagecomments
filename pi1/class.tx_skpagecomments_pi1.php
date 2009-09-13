@@ -45,6 +45,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	var $isNotAllowed = false;
 	protected $userLoggedIn;
 	
+	private $freeCap;
 	/**
 	 * Extension for adding Pagecomments to Pages
 	 */
