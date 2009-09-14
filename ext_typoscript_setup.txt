@@ -44,7 +44,15 @@ plugin.tx_skpagecomments_pi1 {
 	answerLink {
 		#typolink settings
 	}
-   
+
+	formLink {
+		#typolink settings
+	}
+	ATagParams {
+		formLink = rel="nofollow"
+		answerLink = rel="nofollow"
+		homePageLink = rel="nofollow"
+	}
 	#stdWrap for admin hide link	
 	admin.hide {
 		override = <img src="typo3conf/ext/sk_pagecomments/res/hide.gif" width="16" height="16" alt="hide" title="hide" />   

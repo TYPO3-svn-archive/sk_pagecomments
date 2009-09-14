@@ -95,8 +95,8 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			$this->pidList = $conf["pidList"];
 		
 		if ($this->conf['pageid']) {
-			$this->pageid = implode(',', array_merge(explode(',', $this->pageid), explode(',', $this->conf['pageid'])));
-			$this->pidList = implode(',', array_merge(explode(',', $this->pidList), explode(',', $this->conf['pageid'])));
+			$this->pageid = implode(',', t3lib_div::array_merge(explode(',', $this->pageid), explode(',', $this->conf['pageid'])));
+			$this->pidList = implode(',', t3lib_div::array_merge(explode(',', $this->pidList), explode(',', $this->conf['pageid'])));
 		}
 		
 		$err = array ();
@@ -164,10 +164,10 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		if (intval($this->conf['showCommentsLink']) == 1 && intval($this->conf['showComments']) == 0 && intval($this->piVars['showComments']) != 1) {
 			
 			if ($this->conf['bindToGETvar']) {
-				$lconf = array_merge($this->conf['formLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => $this->URLParamsArray . '&' . $this->prefixId . '[showComments]=1', 'section' => ($this->conf['useSectionFormLink'] ? 'CommentStart' : '')));
+				$lconf = t3lib_div::array_merge($this->conf['formLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => $this->URLParamsArray . '&' . $this->prefixId . '[showComments]=1', 'section' => ($this->conf['useSectionFormLink'] ? 'CommentStart' : '')));
 				$l = $this->cObj->typolink('|', $lconf);
 			} else {
-				$lconf = array_merge($this->conf['formLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => '&' . $this->prefixId . '[showComments]=1', 'section' => ($this->conf['useSectionFormLink'] ? 'CommentStart' : '')));
+				$lconf = t3lib_div::array_merge($this->conf['formLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => '&' . $this->prefixId . '[showComments]=1', 'section' => ($this->conf['useSectionFormLink'] ? 'CommentStart' : '')));
 				$l = $this->cObj->typolink('|', $lconf);
 			}
 			
@@ -400,30 +400,28 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			if ($this->conf['commentOnlyRegistered'] && !$this->userLoggedIn && !$this->piVars['answer']) {
 				$showForm = 0;
 			}
-			#if ($this->conf['showForm'] == 1 && $this->piVars['success'] != 1 && (($this->piVars['answer']) || ($this->conf['commentOnlyRegistered'] == 0) || ($this->conf['commentOnlyRegistered'] == 1 && $this->userLoggedIn === true))) {
 			if ($showForm) {
-				#t3lib_div::debug($this->isNotAllowed,'debug');
-				
-
 				if ($this->conf['showFormLink'] == 1 && $this->piVars['showForm'] != 1 && ! $this->piVars['answer'] && ! $this->isNotAllowed) {
 					#generate link for form
-					
+					$aTagParams = $GLOBALS['TSFE']->ATagParams;
+					$GLOBALS['TSFE']->ATagParams = $this->conf['ATagParams.']['formLink'];
 
 					$subpartArray['###FORMLINK###'] = '';
 					if ($this->conf['bindToGETvar']) {
-						$lconf = array_merge($this->conf['formLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => $this->URLParamsArray . '&' . $this->prefixId . '[showComments]=1&' . $this->prefixId . '[showForm]=1' . ($this->conf['pageBrowser'] ? '&' . $this->prefixId . '[offset]=' . $offset : '') . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : ''), 'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : '')));
+						$lconf = t3lib_div::array_merge($this->conf['formLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => $this->URLParamsArray . '&' . $this->prefixId . '[showComments]=1&' . $this->prefixId . '[showForm]=1' . ($this->conf['pageBrowser'] ? '&' . $this->prefixId . '[offset]=' . $offset : '') . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : ''), 'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : '')));
 						
 						$l = $this->cObj->typolink($this->pi_getLL('new_comment'), $lconf);
 						if (intval($lookForValue) > 0) {
 							$showLink = 1;
 						}
 					} else {
-						$lconf = array_merge($this->conf['formLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => '&' . $this->prefixId . '[showComments]=1&' . $this->prefixId . '[showForm]=1' . ($this->conf['pageBrowser'] ? '&' . $this->prefixId . '[offset]=' . $offset : '') . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : ''), 'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : '')));
+						$lconf = t3lib_div::array_merge($this->conf['formLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => '&' . $this->prefixId . '[showComments]=1&' . $this->prefixId . '[showForm]=1' . ($this->conf['pageBrowser'] ? '&' . $this->prefixId . '[offset]=' . $offset : '') . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : ''), 'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : '')));
 						$l = $this->cObj->typolink($this->pi_getLL('new_comment'), $lconf);
 						$showLink = 1;
 						$subpartArray['###FORMLINK###'] = $l;
 					}
 					$markerArray['###LINKTEXT###'] = $this->pi_getLL('new_comment');
+					$GLOBALS['TSFE']->ATagParams = $aTagParams;
 					
 					$wrappedSubpartArray['FORMLINKWRAP'] = explode('|', $this->cObj->typolink('|', $lconf));
 					if ($showLink == 1)
@@ -486,7 +484,7 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 						
 						#freecap
 						if (t3lib_extMgm::isLoaded('sr_freecap') && ! $this->conf['useCaptcha'] && $this->conf['useFreecap']) {
-							$markerArray = array_merge($markerArray, $this->freeCap->makeCaptcha());
+							$markerArray = t3lib_div::array_merge($markerArray, $this->freeCap->makeCaptcha());
 							$subpartArray['###CAPTCHA###'] = '';
 						} else {
 							$subpartArray['###CAPTCHA_INSERT###'] = '';
@@ -535,11 +533,14 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 	
 	protected function renderComment($temp, $level = 0, $list = '') {
 		if ($level == - 1) {
-			#t3lib_div::debug($temp['pivar']);
-			$lconf = array_merge($this->conf['answerLink.'], array ('parameter' => $temp['pageid'], 'section' => 'comment' . $temp['uid'], 'additionalParams' => ($temp['pivar'] ? '&' . $temp['pivar'] : '') . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : '')));
+			$aTagParams = $GLOBALS['TSFE']->ATagParams;
+			$GLOBALS['TSFE']->ATagParams = $this->conf['ATagParams.']['answerLink'];
+			
+			$lconf = t3lib_div::array_merge($this->conf['answerLink.'], array ('parameter' => $temp['pageid'], 'section' => 'comment' . $temp['uid'], 'additionalParams' => ($temp['pivar'] ? '&' . $temp['pivar'] : '') . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : '')));
 			$l = $this->cObj->typolink('|', $lconf);
 			$linkWrapArray['###LINK###'] = explode('|', $l);
 			$markerArray['###GOTO###'] = $this->cObj->stdWrap($this->pi_getLL('goto'), $this->conf['goto.']);
+			$GLOBALS['TSFE']->ATagParams = $aTagParams;
 		} elseif ($level == 0) {
 			$list = $this->cObj->getSubpart($this->subpart['comments'], '###COMMENTLIST###');
 		} else {
@@ -566,9 +567,12 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$linkWrapArray['###EMAILLINKWRAP###'] = explode('|', $this->cObj->typolink('|', $this->conf['emailLink.']));
 		
 		if ($temp['homepage'] != '') {
+			$aTagParams = $GLOBALS['TSFE']->ATagParams;
+			$GLOBALS['TSFE']->ATagParams = $this->conf['ATagParams.']['homePageLink'];
 			$this->conf['homepageLink.']['parameter'] = $GLOBALS['TSFE']->id; #$temp['homepage'];   
 			$this->conf['homepageLink.']['additionalParams'] = '&' . $this->prefixId . '[goto]=' . $temp['uid'];
 			$linkWrapArray['###HOMEPAGELINKWRAP###'] = $this->showFields('homepage', explode('|', $this->cObj->typolink('|', $this->conf['homepageLink.'])));
+			$GLOBALS['TSFE']->ATagParams = $aTagParams;
 		}
 		$markerArray['###EMAIL###'] = $this->showFields('email', $this->cObj->stdWrap($temp['email'], $this->conf['commentEmail.']));
 		$homepage = $temp['homepage'] != '' ? $this->cObj->stdWrap($temp['homepage'], $this->conf['commentHomepage.']) : '';
@@ -577,13 +581,16 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		$markerArray['###COMMENT###'] = $this->displayComment($temp['comment']);
 		
 		if ($this->conf['allowAnswer']) {
+			$aTagParams = $GLOBALS['TSFE']->ATagParams;
+			$GLOBALS['TSFE']->ATagParams = $this->conf['ATagParams.']['answerLink'];
 			if ($this->conf['bindToGETvar']) {
-				$lconf = array_merge((array) $this->conf['answerLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => $this->URLParamsArray . '&' . $this->prefixId . '[answer]=' . $temp['uid'] . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : ''), 'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : '')));
+				$lconf = t3lib_div::array_merge((array) $this->conf['answerLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => $this->URLParamsArray . '&' . $this->prefixId . '[answer]=' . $temp['uid'] . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : ''), 'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : '')));
 				$l = $this->cObj->typolink($this->cObj->stdWrap($this->pi_getLL('answer'), $this->conf['answer.']), $lconf);
 			} else {
-				$lconf = array_merge($this->conf['answerLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => '&' . $this->prefixId . '[answer]=' . $temp['uid'] . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : ''), 'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : '')));
+				$lconf = t3lib_div::array_merge($this->conf['answerLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => '&' . $this->prefixId . '[answer]=' . $temp['uid'] . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : ''), 'section' => ($this->conf['useSectionFormLink'] ? 'CommentForm' : '')));
 				$l = $this->cObj->typolink($this->cObj->stdWrap($this->pi_getLL('answer'), $this->conf['answer.']), $lconf);
 			}
+			$GLOBALS['TSFE']->ATagParams = $aTagParams;
 		} elseif ($this->conf['registerInfo'] && $this->conf['registerPid'] > 0) {
 			$lconf = array ('parameter' => $this->conf['registerPid'], 'additionalParams' => '&redirect_url=' . urlencode(t3lib_div::getIndpEnv('REQUEST_URI')));
 			$l = $this->cObj->typolink($this->cObj->stdWrap($this->pi_getLL('registerinfo'), $this->conf['registerInfo.']), $lconf);
@@ -593,9 +600,9 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 		
 		if ($this->isAdmin()) {
 			if ($this->conf['bindToGETvar']) {
-				$lconf = array_merge((array) $this->conf['adminLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => $this->URLParamsArray . '&' . $this->prefixId . '[hide]=' . $temp['uid'] . '&' . $this->prefixId . '[status]=' . ($temp['hidden'] == 0 ? 1 : 0) . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : '')));
+				$lconf = t3lib_div::array_merge((array) $this->conf['adminLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => $this->URLParamsArray . '&' . $this->prefixId . '[hide]=' . $temp['uid'] . '&' . $this->prefixId . '[status]=' . ($temp['hidden'] == 0 ? 1 : 0) . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : '')));
 			} else {
-				$lconf = array_merge($this->conf['adminLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => '&' . $this->prefixId . '[hide]=' . $temp['uid'] . '&' . $this->prefixId . '[status]=' . ($temp['hidden'] == 0 ? 1 : 0) . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : '')));
+				$lconf = t3lib_div::array_merge($this->conf['adminLink.'], array ('parameter' => $this->orig_pageid, 'additionalParams' => '&' . $this->prefixId . '[hide]=' . $temp['uid'] . '&' . $this->prefixId . '[status]=' . ($temp['hidden'] == 0 ? 1 : 0) . ($this->piVars['showall'] ? '&' . $this->prefixId . '[showall]=1' : '')));
 			}
 			if ($temp['hidden'] == 0)
 				$l = $this->cObj->typolink($this->cObj->stdWrap($this->pi_getLL('hide'), $this->conf['admin.']['hide.']), $lconf);
