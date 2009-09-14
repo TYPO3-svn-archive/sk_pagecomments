@@ -547,29 +547,30 @@ class tx_skpagecomments_pi1 extends tslib_pibase {
 			$list = $this->cObj->getSubpart($this->subpart['comments'], '###ANSWERLIST###');
 		}
 		$markerArray['###DATEPHRASE###'] = sprintf($this->pi_getLL('wrote'), $this->showDate($this->conf['dateFormat'], $temp['crdate']));
-		
+
 		$markerArray['###DATE###'] = $this->showDate($this->conf['dateFormat'], $temp['crdate']);
 		$markerArray['###NAME###'] = $this->cObj->stdWrap($temp['name'], $this->conf['commentName.']);
 		$numberLink = $this->cObj->typolink($this->cObj->stdWrap($this->number[$temp['uid']], $this->conf['commentNumber.']), array(
 			'parameter' => $GLOBALS['TSFE']->id,
 			'section' => 'comment' . $temp['uid'],
-			'addQueryString' => 1 
+			'addQueryString' => TRUE,
 		));
 		$markerArray['###NUMBER###'] = $this->showFields('number', $numberLink);
 		$markerArray['###MARGIN###'] = $this->conf['answerMargin'] * $level;
 		
-		if ($this->conf['pageLink'] = 1) {
+		if ($this->conf['pageLink']) {
 			$page = $this->pi_getRecord('pages', $temp['pid']);
 			$markerArray['###PAGELINK###'] = $this->pi_linkToPage($this->cObj->stdWrap($page['title'], $this->conf['pageLink.']), $temp['pid']);
 		}
-		
+			// email link
 		$this->conf['emailLink.']['parameter'] = $temp['email'];
-		$linkWrapArray['###EMAILLINKWRAP###'] = explode('|', $this->cObj->typolink('|', $this->conf['emailLink.']));
-		
-		if ($temp['homepage'] != '') {
+		$this->conf['emailLink.']['parameter'] = $temp['email'];
+		$linkWrapArray['###EMAILLINKWRAP###'] = $this->showFields('email', explode('|', $this->cObj->typolink('|', $this->conf['emailLink.'])));
+			//homePage link
+		if ($temp['homepage']) {
 			$aTagParams = $GLOBALS['TSFE']->ATagParams;
 			$GLOBALS['TSFE']->ATagParams = $this->conf['ATagParams.']['homePageLink'];
-			$this->conf['homepageLink.']['parameter'] = $GLOBALS['TSFE']->id; #$temp['homepage'];   
+			$this->conf['homepageLink.']['parameter'] = $GLOBALS['TSFE']->id;
 			$this->conf['homepageLink.']['additionalParams'] = '&' . $this->prefixId . '[goto]=' . $temp['uid'];
 			$linkWrapArray['###HOMEPAGELINKWRAP###'] = $this->showFields('homepage', explode('|', $this->cObj->typolink('|', $this->conf['homepageLink.'])));
 			$GLOBALS['TSFE']->ATagParams = $aTagParams;
